@@ -3,6 +3,7 @@ import numpy as np
 import os
 import pandas as pd
 
+from utils.bayes import get_prior
 from utils.data_generation import generate_dataset
 from utils.plotting import plot_heatmap
 from utils.dag_utils import get_undirected_edges, get_mec
@@ -47,6 +48,8 @@ if __name__ == '__main__':
     undirected_edges = get_undirected_edges(true_G, verbose=args.verbose)
     lms_decisions = get_lms_decisions(undirected_edges, codebook)
     mec = get_mec(true_G)
+    prior_prob = get_prior(undirected_edges, mec)
+    breakpoint()
     new_mec, decisions = algo(lms_decisions, mec, undirected_edges, tol=args.tolerance)
     shds = get_mec_shd(true_G, new_mec)
     shds_scores = np.array([v for v in shds.values()])

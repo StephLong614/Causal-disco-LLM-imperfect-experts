@@ -1,0 +1,14 @@
+bnlearn
+causaldag
+fcit
+openai
+pcalg
+graphviz
+ipdb
+networkx>=2.7.1
+numpy
+pytest
+scipy>=1.7
+seaborn
+statsmodels>=0.13.2
+pymed

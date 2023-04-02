@@ -7,7 +7,8 @@ from utils.language_models import gpt3_scoring
 def global_scoring(gpt3_decision_probs, prior_probs, mec, undirected_edges, tol=0.101):
 
     all_scores = []
-    for dag in mec:
+    top_indices = []
+    for i, dag in enumerate(mec):
         score = 0
         denom = 0
         for edge in dag:
@@ -25,8 +26,11 @@ def global_scoring(gpt3_decision_probs, prior_probs, mec, undirected_edges, tol=
                 denom += 1
                 
         all_scores.append(score/denom)
+        if score/denom > 0.5: # the LM agree with more than 50\% of the edges for this graph
+           top_indices.append(i) 
     
     # only keep the 1/2 of the scoring graphs
-    top_indices = np.argsort(all_scores)[len(all_scores)//2:]
+    #breakpoint()
+    #top_indices = np.where(all_scores > 0.5)#[len(all_scores)//2:]
     mec = [mec[i] for i in top_indices]
     return mec, {}

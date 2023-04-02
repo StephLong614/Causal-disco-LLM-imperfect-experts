@@ -12,3 +12,11 @@ def get_prior(undirected_edges, mec):
       prior_probs[(node_j, node_i)] = np.mean(edges)
     
     return prior_probs
+
+
+def get_posterior(prior, likelihood):
+  """
+  P(B|A) = P(A|B)P(B)/P(A)
+         = P(A|B)P(B)/(P(A|B=1)P(B=1) + P(A|B=0)P(B=0))
+  """
+  return likelihood

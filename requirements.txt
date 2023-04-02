@@ -12,3 +12,4 @@ scipy>=1.7
 seaborn
 statsmodels>=0.13.2
 pymed
+cdt

@@ -28,6 +28,9 @@ if __name__ == '__main__':
             algo = greedy_search
         case "PC":
             algo = lambda gpt3_decision_probs, mec, undirected_edges, tol: (mec, {})
+        case "global_scoring":
+            from algo.global_scoring import global_scoring
+            algo = global_scoring
     
     if not os.path.exists("_raw_bayesian_nets"):
         from utils.download_datasets import download_datasets

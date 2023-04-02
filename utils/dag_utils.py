@@ -1,7 +1,5 @@
 from causaldag import DAG
-import matplotlib.pyplot as plt
 import networkx as nx
-import seaborn as sns
 
 def get_mec(true_G):
     nodes = list(true_G.nodes())
@@ -43,16 +41,6 @@ def order_graph(graph):
     H.add_nodes_from(sorted(graph.nodes(data=True)))
     H.add_edges_from(graph.edges(data=True))
     return H
-
-def plot_graph(G, name=''):
-    lbls = G.nodes()
-    g = nx.to_numpy_array(G)
-    ax = sns.heatmap(g)
-    ax.set_xticklabels(lbls, rotation=90)
-    ax.set_yticklabels(lbls, rotation=0)
-    plt.tight_layout()
-    plt.savefig(name)
-    plt.close()
 
 
 def list_of_tuples_to_digraph(list_of_tuples):

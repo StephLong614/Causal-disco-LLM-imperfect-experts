@@ -8,7 +8,7 @@ def get_prior(undirected_edges, mec):
       
       # how often in the mec does j->i
       edges = np.array([(node_j, node_i) in g for g in mec])
-      prior_probs[(node_j, node_i)] = np.mean(edges)
       prior_probs[(node_i, node_j)] = 1-np.mean(edges)
+      prior_probs[(node_j, node_i)] = np.mean(edges)
     
     return prior_probs

@@ -1,7 +1,7 @@
 import pymed
 from pymed import PubMed
 
-def get_abstracts(query, n=1):
+def pubmed_api(query, n=1):
     # Create a PubMed object
     pubmed = PubMed(tool="MyTool", email="myemail@domain.com")
     

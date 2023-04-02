@@ -21,7 +21,7 @@ def get_decisions_from_mec(mec, undirected_edges):
         
 
 
-def greedy_search(gpt3_decision_probs, mec, undirected_edges, tol=0.101):
+def greedy_search(gpt3_decision_probs, prior_probs, mec, undirected_edges, tol=0.501):
     decisions = []
     eps = 0.
     while eps < tol:
@@ -32,7 +32,7 @@ def greedy_search(gpt3_decision_probs, mec, undirected_edges, tol=0.101):
             potential_new_mec = [dag for dag in mec if bool(decision_potential in dag)]
             resulting_decisions = get_decisions_from_mec(potential_new_mec, undirected_edges)
             dec = {'resulting_decisions': resulting_decisions,
-                   'prob_wrong': 1 - np.prod([gpt3_decision_probs[dec] for dec in resulting_decisions]),
+                   'prob_wrong': 1 - np.prod([1-gpt3_decision_probs[dec] for dec in resulting_decisions]),
                    'mec_size': len(potential_new_mec)}
             
             if dec['prob_wrong'] <= tol:

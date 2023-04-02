@@ -4,7 +4,7 @@ import operator
 
 from utils.language_models import gpt3_scoring
 
-def global_scoring(gpt3_decision_probs, mec, undirected_edges, tol=0.101):
+def global_scoring(gpt3_decision_probs, prior_probs, mec, undirected_edges, tol=0.101):
 
     all_scores = []
     for dag in mec:

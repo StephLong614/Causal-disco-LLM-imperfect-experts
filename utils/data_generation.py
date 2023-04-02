@@ -5,6 +5,8 @@ import os
 import pprint
 import sys
 
+from utils.dag_utils import order_graph
+
 pp = pprint.PrettyPrinter(width=82, compact=True)
 
 # Utility functions to mute printing done in BNLearn
@@ -32,5 +34,6 @@ def generate_dataset(bn_path, n=10000, seed=42):
     
     # Label nodes in causal graph
     nx.relabel_nodes(G, dict(zip(range(len(G.nodes())), data.columns)))
+    G = order_graph(G)
     
     return G, data

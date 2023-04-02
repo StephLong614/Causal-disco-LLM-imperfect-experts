@@ -2,66 +2,18 @@ import numpy as np
 import openai
 import pickle
 import scipy
-
-def gpt3_call(engine="text-ada-001", prompt="", max_tokens=128, temperature=0, 
-              logprobs=1, echo=False):
-  LLM_CACHE = {}
-  try:
-      with open('llm_cache.pickle', 'rb') as f:
-          LLM_CACHE = pickle.load(f)
-  except:
-      pass
-  full_query = ""
-  for p in prompt:
-    full_query += p
-  id = tuple((engine, full_query, max_tokens, temperature, logprobs, echo))
-  if id in LLM_CACHE.keys():
-    response = LLM_CACHE[id]
-  else:
-    print('no cache hit, api call')
-    response = openai.Completion.create(engine=engine, 
-                                        prompt=prompt, 
-                                        max_tokens=max_tokens, 
-                                        temperature=temperature,
-                                        logprobs=logprobs,
-                                        echo=echo)
-    LLM_CACHE[id] = response
-    with open('llm_cache.pickle', 'wb') as f:
-      pickle.dump(LLM_CACHE, f)
-  return response
+from utils.davinci import gpt3_scoring
+from utils.chatgpt import chatgpt_scoring
 
 
-def gpt3_scoring(options, engine="text-davinci-003", verbose=False, print_tokens=False):
-  verbose and print("Scoring", len(options), "options")
-  gpt3_prompt_options = options
-  response = gpt3_call(
-      engine=engine, 
-      prompt=gpt3_prompt_options, 
-      max_tokens=0,
-      logprobs=1, 
-      temperature=0,
-      echo=True,)
-  scores = []
-  for option, choice in zip(options, response["choices"]):
-    tokens = choice["logprobs"]["tokens"]
-    token_logprobs = choice["logprobs"]["token_logprobs"]
-    total_logprob = 0
-    denom = 0
-    for token, token_logprob in zip(reversed(tokens), reversed(token_logprobs)):
-      if token_logprob is not None:
-        denom += 1
-        total_logprob += token_logprob
 
-    scores.append(total_logprob / denom)
-  
-  return np.array(scores)
-
-
-def get_lms_decisions(undirected_edges, codebook, gpt3_error=0.05):
+def get_lms_decisions(undirected_edges, codebook, gpt3_error=0.05, engine='chatgpt'):
   """
   return: dictionary of tuple and their likelihood of being wrong by the LM
   example {('Age', 'Disease'): 0.05, ...}
   """
+
+  #TODO: flip error for likelihood
 
   gpt3_decisions = []
   gpt3_decision_probs = {}
@@ -74,9 +26,12 @@ def get_lms_decisions(undirected_edges, codebook, gpt3_error=0.05):
       #print(node_j)
       long_name_node_j = codebook.loc[codebook['var_name']==node_j, 'var_description'].to_string(index=False)
       options = [f'According to medical doctors, {long_name_node_i} increases the risk of {long_name_node_j}',
-                f'According to medical doctors, {long_name_node_j} increases the risk of {long_name_node_i}']
+                 f'According to medical doctors, {long_name_node_j} increases the risk of {long_name_node_i}']
       
-      log_scores = gpt3_scoring(options)
+      if engine == 'davinci':
+        log_scores = gpt3_scoring(options)
+      else:
+        log_scores = chatgpt_scoring(options)
       scores = scipy.special.softmax(log_scores)
       # if scores[0] is greater than scores[1], gpt3 believes node_i -> node_j
       if (scores[0] > scores[1]):
@@ -91,6 +46,32 @@ def get_lms_decisions(undirected_edges, codebook, gpt3_error=0.05):
       gpt3_decisions.append(decision)
 
   return gpt3_decision_probs
+
+
+def calibrate(directed_edges, codebook):
+  correct_answer = 0
+  denom = 0
+
+  for edge in directed_edges:
+      node_i = edge[0]
+      node_j = edge[1]
+      long_name_node_i = codebook.loc[codebook['var_name']==node_i, 'var_description'].to_string(index=False)
+      long_name_node_j = codebook.loc[codebook['var_name']==node_j, 'var_description'].to_string(index=False)
+      options = [f'According to medical doctors, {long_name_node_i} increases the risk of {long_name_node_j}',
+                 f'According to medical doctors, {long_name_node_j} increases the risk of {long_name_node_i}']
+     
+      log_scores = gpt3_scoring(options)
+      scores = scipy.special.softmax(log_scores)
+      if scores[0] > scores[1]:
+        correct_answer += 1
+      else:
+        correct_answer += 0
+      
+      denom += 1
+
+  estimated_error = 1 - (correct_answer/denom)
+  return estimated_error
+
 
 if __name__ == '__main__':
     options = ['Smoking causes cancer', 'Cancer causes smoking']

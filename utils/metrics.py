@@ -2,7 +2,7 @@ from cdt.metrics import SHD
 import networkx as nx
 from utils.dag_utils import list_of_tuples_to_digraph, order_graph 
 
-def get_mec_shd(true_G, mec):
+def get_mec_shd(true_G, mec, args):
     """
     the graphs need to be ordered to be comparable
     """

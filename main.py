@@ -6,9 +6,9 @@ import pandas as pd
 from utils.bayes import get_prior
 from utils.data_generation import generate_dataset
 from utils.plotting import plot_heatmap
-from utils.dag_utils import get_undirected_edges, get_mec
+from utils.dag_utils import get_undirected_edges, get_mec, get_directed_edges
 from utils.metrics import get_mec_shd
-from utils.language_models import get_lms_decisions
+from utils.language_models import get_lms_probs, calibrate
 
 
 parser = argparse.ArgumentParser(description='Description of your program.')
@@ -28,7 +28,7 @@ if __name__ == '__main__':
             from algo.greedy_search import greedy_search
             algo = greedy_search
         case "PC":
-            algo = lambda gpt3_decision_probs, mec, undirected_edges, tol: (mec, {})
+            algo = lambda gpt3_decision_probs, prior_prob, mec, undirected_edges, tol: (mec, {})
         case "global_scoring":
             from algo.global_scoring import global_scoring
             algo = global_scoring
@@ -46,14 +46,17 @@ if __name__ == '__main__':
     true_G, data = generate_dataset('_raw_bayesian_nets/' + args.dataset + '.bif', n=1000, seed=0)
     plot_heatmap(true_G, 'figures/true_g.pdf')
     undirected_edges = get_undirected_edges(true_G, verbose=args.verbose)
-    lms_decisions = get_lms_decisions(undirected_edges, codebook)
+    directed_edges = get_directed_edges(true_G, verbose=args.verbose)
+    lm_error = calibrate(directed_edges, codebook) 
+    print('Calibration Error: ', lm_error)
+    lms_probs = get_lms_probs(undirected_edges, codebook)
     mec = get_mec(true_G)
     prior_prob = get_prior(undirected_edges, mec)
-    breakpoint()
-    new_mec, decisions = algo(lms_decisions, mec, undirected_edges, tol=args.tolerance)
-    shds = get_mec_shd(true_G, new_mec)
+    new_mec, decisions = algo(lms_probs, prior_prob, mec, undirected_edges, tol=args.tolerance)
+    shds = get_mec_shd(true_G, new_mec, args)
     shds_scores = np.array([v for v in shds.values()])
     print('Average SHD for the mec: ', np.mean(shds_scores))
+    print('MEC size: ', len(new_mec))
     #for k, v in shds.items():
     #    print(v)
     #print('PC mec size: ', len(mec))

@@ -1,4 +1,5 @@
 import argparse
+import networkx as nx
 import numpy as np
 import os
 import pandas as pd
@@ -44,7 +45,7 @@ if __name__ == '__main__':
         codebook = None
 
     true_G, data = generate_dataset('_raw_bayesian_nets/' + args.dataset + '.bif', n=1000, seed=0)
-    plot_heatmap(true_G, 'figures/true_g.pdf')
+    plot_heatmap(nx.to_numpy_array(true_G), lbls=true_G.nodes(), dataset=args.dataset, name='true_g.pdf')
     undirected_edges = get_undirected_edges(true_G, verbose=args.verbose)
     directed_edges = get_directed_edges(true_G, verbose=args.verbose)
     lm_error = calibrate(directed_edges, codebook) 

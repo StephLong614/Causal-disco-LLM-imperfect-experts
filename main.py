@@ -4,12 +4,13 @@ import numpy as np
 import os
 import pandas as pd
 
-from utils.bayes import get_prior
+from utils.bayes import get_prior, get_posterior
 from utils.data_generation import generate_dataset
 from utils.plotting import plot_heatmap
 from utils.dag_utils import get_undirected_edges, get_mec, get_directed_edges
 from utils.metrics import get_mec_shd
 from utils.language_models import get_lms_probs, calibrate
+from utils.tabular_expert import get_tabular_probs
 
 
 parser = argparse.ArgumentParser(description='Description of your program.')
@@ -18,8 +19,11 @@ parser = argparse.ArgumentParser(description='Description of your program.')
 parser.add_argument('--algo', default="greedy", type=str, help='What algorithm to use')
 parser.add_argument('--dataset', default="child", type=str, help='What dataset to use')
 parser.add_argument('--pubmed-sources', type=int, help='How many PubMed sources to retrieve')
-parser.add_argument('--verbose', default=0, type=int, help='Print')
-parser.add_argument('--tolerance', default=0.101, type=float, help='algorithm error tolerance')
+parser.add_argument('--verbose', default=0, type=int, help='For debugging purposes')
+parser.add_argument('--tabular', default=0, type=int, help='If 0 use tabular expert, else use gpt3')
+parser.add_argument('--uniform-prior', default=0, type=int, help='If set to 1 we will use the uniform prior over edges')
+parser.add_argument('--epsilon', default=0.05, type=float, help='algorithm error tolerance')
+parser.add_argument('-tol', '--tolerance', default=0.101, type=float, help='algorithm error tolerance')
 
 if __name__ == '__main__':
     args = parser.parse_args()
@@ -27,6 +31,9 @@ if __name__ == '__main__':
     match args.algo:
         case "greedy":
             from algo.greedy_search import greedy_search
+            algo = greedy_search
+        case "greedy2":
+            from algo.greedy_search2 import greedy_search
             algo = greedy_search
         case "PC":
             algo = lambda gpt3_decision_probs, prior_prob, mec, undirected_edges, tol: (mec, {})
@@ -48,15 +55,23 @@ if __name__ == '__main__':
     plot_heatmap(nx.to_numpy_array(true_G), lbls=true_G.nodes(), dataset=args.dataset, name='true_g.pdf')
     undirected_edges = get_undirected_edges(true_G, verbose=args.verbose)
     directed_edges = get_directed_edges(true_G, verbose=args.verbose)
-    lm_error = calibrate(directed_edges, codebook) 
-    print('Calibration Error: ', lm_error)
-    lms_probs = get_lms_probs(undirected_edges, codebook)
+    #lm_error = calibrate(directed_edges, codebook) 
+    #print('Calibration Error: ', lm_error)
+
+    if args.tabular:
+        expert_probs = get_tabular_probs(undirected_edges, codebook, true_G, epsilon=args.epsilon)
+    else:
+        expert_probs = get_lms_probs(undirected_edges, codebook)
+
     mec = get_mec(true_G)
-    prior_prob = get_prior(undirected_edges, mec)
-    new_mec, decisions = algo(lms_probs, prior_prob, mec, undirected_edges, tol=args.tolerance)
-    shds = get_mec_shd(true_G, new_mec, args)
-    shds_scores = np.array([v for v in shds.values()])
-    print('Average SHD for the mec: ', np.mean(shds_scores))
+    prior_prob = get_prior(undirected_edges, mec, args.uniform_prior)
+    print(expert_probs)
+    expert_probs = get_posterior(expert_probs, prior_prob)
+    print(expert_probs)
+    new_mec, decisions = algo(expert_probs, mec, undirected_edges, tol=args.tolerance)
+    shd = get_mec_shd(true_G, new_mec, args)
+    #shds_scores = np.array([v for v in shds.values()])
+    print('Average SHD for the mec: ', shd)
     print('MEC size: ', len(new_mec))
     #for k, v in shds.items():
     #    print(v)

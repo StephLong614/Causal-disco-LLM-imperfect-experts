@@ -12,7 +12,6 @@ def get_lms_probs(undirected_edges, codebook):
   example {('Age', 'Disease'): 0.05, ...}
   """
 
-  gpt3_decisions = []
   gpt3_decision_probs = {}
 
   for edge in undirected_edges:
@@ -28,17 +27,11 @@ def get_lms_probs(undirected_edges, codebook):
                 The answer is: 
                 """
       
-      log_scores = gpt3_scoring(options, options=['(A)', '(B)'], lock_token=' (')
-      scores = scipy.special.softmax(log_scores)
-      # if scores[0] is greater than scores[1], gpt3 believes node_i -> node_j
-      if (scores[0] > scores[1]):
-          decision = (node_j, node_i)
-      else:
-          decision = (node_j, node_i)
+      log_scores = gpt3_scoring(options, options=['(A', '(B'], lock_token=' (')
+      scores = scipy.special.softmax(-log_scores)
       
       gpt3_decision_probs[(node_i, node_j)] = scores[0]
       gpt3_decision_probs[(node_j, node_i)] = scores[1]
-      gpt3_decisions.append(decision)
 
   return gpt3_decision_probs
 
@@ -48,6 +41,7 @@ def calibrate(directed_edges, codebook):
   denom = 0
 
   for edge in directed_edges:
+      # node_i -> node_j 
       node_i = edge[0]
       node_j = edge[1]
       long_name_node_i = codebook.loc[codebook['var_name']==node_i, 'var_description'].to_string(index=False)
@@ -107,7 +101,7 @@ def gpt3_scoring(prompt, options, engine="text-davinci-003", verbose=False, n_to
     scores = [] 
     for option, choice in zip(options, response["choices"]): 
         if lock_token is not None: 
-            n_tokens_score = choice["logprobs"]["tokens"][::-1].index(lock_token) + 1
+            n_tokens_score = choice["logprobs"]["tokens"][::-1].index(lock_token)
         tokens = choice["logprobs"]["tokens"][-n_tokens_score:] 
         verbose and print("Tokens:", tokens) 
         token_logprobs = choice["logprobs"]["token_logprobs"][-n_tokens_score:] 

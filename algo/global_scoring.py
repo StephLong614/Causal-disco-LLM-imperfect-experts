@@ -4,7 +4,9 @@ import operator
 
 from utils.language_models import gpt3_scoring
 
-def global_scoring(gpt3_decision_probs, prior_probs, mec, undirected_edges, tol=0.101):
+is_in_undirected_edges = lambda node_i, node_j, undirected_edges: ((node_i, node_j) in undirected_edges) or ((node_j, node_i) in undirected_edges)
+
+def global_scoring(gpt3_decision_probs, mec, undirected_edges, tol=0.101):
 
     all_scores = []
     top_indices = []
@@ -16,21 +18,18 @@ def global_scoring(gpt3_decision_probs, prior_probs, mec, undirected_edges, tol=
             node_i = edge[0]
             node_j = edge[1]
             # only score edges that are not yet determined
-            if ((node_i, node_j) in undirected_edges) or ((node_j, node_i) in undirected_edges):
-                error = gpt3_decision_probs[(node_i, node_j)]
-                # if score is less than 50\% the LM believes that 
+            if is_in_undirected_edges(node_i, node_j, undirected_edges):
+                prob = gpt3_decision_probs[(node_i, node_j)]
+                # if prob is more than 50\% the LM believes that 
                 # node_i -> node_j, thus we increase the score of the graph
                 # under the model by 1 otherwise 0
-                edge_score = 1 if (error < 0.5) else 0
+                edge_score = 1 if (prob > 0.5) else 0 #1=yes; was formerly less than
                 score += edge_score
                 denom += 1
                 
         all_scores.append(score/denom)
-        if score/denom > 0.5: # the LM agree with more than 50\% of the edges for this graph
-           top_indices.append(i) 
     
-    # only keep the 1/2 of the scoring graphs
-    #breakpoint()
-    #top_indices = np.where(all_scores > 0.5)#[len(all_scores)//2:]
+    print(all_scores)
+    top_indices = np.argsort(all_scores)[-1:]
     mec = [mec[i] for i in top_indices]
     return mec, {}

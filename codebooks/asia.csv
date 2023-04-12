@@ -1,0 +1,9 @@
+node,var_name,var_description
+1,asia,visited Asia
+2,tub,tuberculosis
+3,smoke,smoking cigarettes
+4,lung ,lung cancer
+5,bronch,bronchitis
+6,either,individual has either tuberculosis or lung cancer
+7,xray,positive xray
+8,dysp,"dyspnoae, laboured breathing "

@@ -1,0 +1,6 @@
+node,var_name,var_description
+1,pollution,level of pollution
+2,smoker,smoking status
+3,cancer,presence of cancer
+4,xray,xray
+5,dysponea,laboured breathing

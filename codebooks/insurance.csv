@@ -1,0 +1,28 @@
+node,var_name,var_description
+1,age,age
+2,socioecon,socioeconomic status 
+3,RiskAversion,risk aversion
+4,goodstudent,good student
+5,SeniorTrain,received senior training
+6,DrivingSkill,driving skill
+7,MedCost,cost of medical treatment
+8,OtherCar,other cars involved in the accident
+9,MakeModel,modelf of car
+10,VehicleYear,year of vehicle
+11,HomeBase,neighbourhood type
+12,AntiTheft,car has ABS
+13,DrivHist,driving history
+14,DrivQuality,driving quality
+15,Airbag,airbag
+16,Antilock,ABS
+17,RuggedAuto,ruggedness of the car
+18,CarValue,value of the car
+19,Mileage,how much mileage is on the car
+20,Accident,severity of the accident
+21,Cushioning,quality of cushioning in car
+22,Theft,theft occurred on the car
+23,ILiCost,inspection cost
+24,OtherCarCost,cost of the other cars
+25,ThisCarDam,damage to the car
+26,ThisCarCost,costs for the insured car
+27,PropCost,ratio of the cost for the two cars 

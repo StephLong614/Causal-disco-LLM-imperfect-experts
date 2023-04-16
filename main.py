@@ -3,6 +3,7 @@ import networkx as nx
 import numpy as np
 import os
 import pandas as pd
+import wandb
 
 from utils.bayes import get_prior, get_posterior
 from utils.data_generation import generate_dataset
@@ -27,6 +28,12 @@ parser.add_argument('-tol', '--tolerance', default=0.101, type=float, help='algo
 
 if __name__ == '__main__':
     args = parser.parse_args()
+    wandb.login(key='246c8f672f0416b12172d64574c12d8a7ddae387')
+
+    wandb.init(config=args,
+               project='causal discovery with LMs')
+
+
 
     match args.algo:
         case "greedy":
@@ -73,6 +80,8 @@ if __name__ == '__main__':
     #shds_scores = np.array([v for v in shds.values()])
     print('Average SHD for the mec: ', shd)
     print('MEC size: ', len(new_mec))
+    wandb.log({'mec size': len(new_mec),
+               'shd': shd})
     #for k, v in shds.items():
     #    print(v)
     #print('PC mec size: ', len(mec))

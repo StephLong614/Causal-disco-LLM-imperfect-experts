@@ -72,9 +72,7 @@ if __name__ == '__main__':
 
     mec = get_mec(true_G)
     prior_prob = get_prior(undirected_edges, mec, args.uniform_prior)
-    print(expert_probs)
     expert_probs = get_posterior(expert_probs, prior_prob)
-    print(expert_probs)
     new_mec, decisions = algo(expert_probs, mec, undirected_edges, tol=args.tolerance)
     shd = get_mec_shd(true_G, new_mec, args)
     #shds_scores = np.array([v for v in shds.values()])

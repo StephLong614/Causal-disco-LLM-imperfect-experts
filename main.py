@@ -82,6 +82,7 @@ if __name__ == '__main__':
     print('MEC size: ', len(new_mec))
     wandb.log({'mec size': len(new_mec),
                'shd': shd})
+    wandb.finish()
     #for k, v in shds.items():
     #    print(v)
     #print('PC mec size: ', len(mec))

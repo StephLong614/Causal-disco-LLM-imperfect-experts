@@ -1,4 +1,4 @@
-from itertools import combinations, product
+from itertools import product
 import numpy as np
 
 class NoisyExpert(object):
@@ -12,10 +12,10 @@ class NoisyExpert(object):
         Parameters
         ----------
         
-        prior : callable
-            Returns the prior probability of any subset of arcs
+        prior : models.priors.Prior
+            Provides the prior probability of any subset of arcs
         
-        likelihoods : numpy.array [number of edges]
+        likelihoods : dict {arc: arc_likelihood}
             Likelihood of each observed arc
         """
 
@@ -26,13 +26,13 @@ class NoisyExpert(object):
 
         ans = 0.
 
-        for true_arcs in self._prior.get_complete_orientations():
+        for prob, true_arcs in self._prior.enumerate():
 
             # p(obs|true)
-            ans += self.likelihood(obs_arcs, true_arcs)
+            ans += self.likelihood(obs_arcs, true_arcs) * prob
 
         # uniform prior over DAGs in MEC
-        return ans / self._prior.mec_size()
+        return ans
     
     # likelihood of a set of orientations is factorizable P(O|E)
     def likelihood(self, obs_arcs, true_arcs):

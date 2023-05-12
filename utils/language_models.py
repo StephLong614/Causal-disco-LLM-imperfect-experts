@@ -30,8 +30,10 @@ def get_lms_probs(undirected_edges, codebook):
       log_scores = gpt3_scoring(options, options=['(A', '(B'], lock_token=' (')
       scores = scipy.special.softmax(-log_scores)
       
-      gpt3_decision_probs[(node_i, node_j)] = scores[0]
-      gpt3_decision_probs[(node_j, node_i)] = scores[1]
+      if scores[0] > scores[1]:
+        gpt3_decision_probs[(node_i, node_j)] = scores[0]
+      else:
+        gpt3_decision_probs[(node_j, node_i)] = scores[1]
 
   return gpt3_decision_probs
 

@@ -89,7 +89,6 @@ if __name__ == '__main__':
         observations = oracle.decide_all()
 
     else:
-        raise NotImplementedError
         expert_probs = get_lms_probs(undirected_edges, codebook)
 
     print("\nTrue Orientations:", undirected_edges)

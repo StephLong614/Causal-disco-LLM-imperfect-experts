@@ -46,12 +46,29 @@ class Prior(ABC):
         """
         pass
 
+class IndependentPrior(Prior):
+
+    def __init__(self, cpdag):
+        """
+        A class for calculating the prior probability of independent arcs. 
+        The probability corresponds to a uniform distribution over all combinations of edge orientations. 
+        Hence, only edges that are undirected in the CPDAG are considered/useful.
+
+        Parameters
+        ----------
+        cpdag : causaldag.PDAG
+            A CPDAG object representing the Markov equivalence class of DAGs.
+
+        """
+
+        raise NotImplementedError
+
 class MECPrior(Prior):
     def __init__(self, cpdag):
         """
-        A class for calculating the prior probability of edge orientations in a Markov Equivalence
-        Class. The probability is determined by enumerating all DAGs in the MEC and counting edge
-        orientation frequencies. Only edges that are undirected in the CPDAG are considered.
+        A class for calculating the prior probability of arcs in a Markov Equivalence Class. 
+        The probability corresponds to a uniform distribution over DAGs in the MEC. 
+        Hence, only edges that are undirected in the CPDAG are considered/useful.
 
         Parameters
         ----------
@@ -74,7 +91,7 @@ class MECPrior(Prior):
 
         # Prior table (n_orientations x n_dags_in_mec)
         self._prior = np.zeros(
-            (len(self.arcs), self.mec_size())
+            (len(self.arcs), self.support_size())
         )
 
         # Get occurence of each edge in all DAGs of the MEC

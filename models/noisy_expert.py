@@ -61,7 +61,7 @@ class NoisyExpert(object):
                 margin_edges.append(((x1, x2), (x2, x1)))
         
         if len(margin_edges) > 0:
-        
+            
             # Cartesian product over possible orientations of edges
             for arcs in product(*margin_edges):
                 ans += self.likelihood(obs_arcs, list(arcs) + true_arcs) * self._prior(list(arcs) + true_arcs)

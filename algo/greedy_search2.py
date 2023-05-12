@@ -20,24 +20,24 @@ def get_decisions_from_mec(mec, undirected_edges):
                 
     return decisions
         
-
-
-def greedy_search(gpt3_decision_probs, mec, undirected_edges, tol=0.501):
+def greedy_search(observed_arcs, model, mec, undirected_edges, tol=0.501):
     decisions = []
     past_decision_score = -10000
     improvement = 1e-3
     while improvement > 0:
         decision_scores = {}
         
-        for decision_potential in gpt3_decision_probs.keys():
+        for decision_potential in observed_arcs:
             
             potential_new_mec = [dag for dag in mec if bool(decision_potential in dag)]
             resulting_decisions = get_decisions_from_mec(potential_new_mec, undirected_edges)
-            dec = {'resulting_decisions': resulting_decisions,
-                   'prob_wrong': 1 - np.prod([1-gpt3_decision_probs[dec] for dec in resulting_decisions]),
-                   'mec_size': len(potential_new_mec),
-                   'score': get_cost(p=np.prod([1-gpt3_decision_probs[dec] for dec in resulting_decisions]),
-                                     size=len(potential_new_mec))}
+            dec = {
+                'resulting_decisions': resulting_decisions,
+                'probability': model.posterior(observed_arcs, resulting_decisions),
+                'mec_size': len(potential_new_mec)
+            }
+
+            dec['score'] = get_cost(p=dec['probability'], size=len(potential_new_mec))
             
             if (dec['score'] - past_decision_score) > 0:
                 decision_scores[decision_potential] = dec
@@ -56,5 +56,45 @@ def greedy_search(gpt3_decision_probs, mec, undirected_edges, tol=0.501):
         mec = [dag for dag in mec if bool(decision_taken[0] in dag)]
     
     return mec, decisions
+
+# def greedy_search(observed_arcs, model, mec, undirected_edges, err_budget=0.501):
+#     decisions = []
+#     prob_correct = 1.
+
+#     while undirected_edges:
+#         decision_scores = {}
+        
+#         for candidate_arc in observed_arcs:
+            
+#             candidate_new_mec = [dag for dag in mec if candidate_arc in dag]
+#             resulting_decisions = get_decisions_from_mec(candidate_new_mec, undirected_edges)
+
+#             dec = {'resulting_decisions': resulting_decisions,
+#                    'prob': model.posterior(resulting_decisions),
+#                    'mec_size': len(candidate_new_mec),
+#             }
+            
+#             if err_budget - 1 + dec['prob'] > 0:
+#                 decision_scores[candidate_arc] = dec
+            
+#         if decision_scores:
+#             decision_scores = sorted(decision_scores.items(), key=lambda item: item[1]['prob'], reverse=True)
+#             decision_taken = decision_scores[0]
+#         else:
+#             break
+
+#         print(decision_taken)
+#         decisions = decision_taken[1]['resulting_decisions']
+#         err_budget -= decision_taken[] 
+#         past_decision_score = decision_taken[1]['score']
+#         mec = [dag for dag in mec if decision_taken[0] in dag]
+
+#         for dec in decisions:
+#             if dec in undirected_edges:
+#                 undirected_edges.remove(dec)
+#             else:
+#                 undirected_edges.remove((dec[1], dec[0]))
+    
+#     return mec, decisions
 
    

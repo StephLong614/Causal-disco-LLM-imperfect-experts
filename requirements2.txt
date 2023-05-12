@@ -1,0 +1,9 @@
+bnlearn==0.7.14
+causaldag==0.1a163
+cdt==0.6.0
+networkx==3.0
+openai==0.27.2
+pandas==1.5.3
+pymed==0.8.9
+seaborn==0.12.2
+wandb==0.15.2

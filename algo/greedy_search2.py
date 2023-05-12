@@ -1,27 +1,14 @@
 import operator
 import numpy as np
 
-get_cost = lambda p, size: np.log(p) - 0.5 * size
+from utils.dag_utils import get_decisions_from_mec
 
-def get_decisions_from_mec(mec, undirected_edges):
-    decisions = []
-    
-    for edge in undirected_edges:
-        node_i = edge[0]
-        node_j = edge[1]
-        i_j = np.sum([((node_i, node_j) in dag) for dag in mec])
-        j_i = np.sum([((node_j, node_i) in dag) for dag in mec])
-        # if i_j and j_i we don't have to make a decision
-        if not (i_j and j_i):
-            if i_j:
-                decisions.append((node_i, node_j))
-            else:
-                decisions.append((node_j, node_i))
-                
-    return decisions
+get_cost = lambda p, size: np.log(p) - 0.5 * size
         
 def greedy_search(observed_arcs, model, mec, undirected_edges, tol=0.501):
     decisions = []
+
+    p_correct = 1.
     past_decision_score = -10000
     improvement = 1e-3
     while improvement > 0:
@@ -48,14 +35,15 @@ def greedy_search(observed_arcs, model, mec, undirected_edges, tol=0.501):
             decision_taken = decision_scores_[0]
         else:
             break
-
         print(decision_taken)
+
         decisions = decision_taken[1]['resulting_decisions']
         improvement = decision_taken[1]['score'] - past_decision_score
         past_decision_score = decision_taken[1]['score']
         mec = [dag for dag in mec if bool(decision_taken[0] in dag)]
-    
-    return mec, decisions
+        p_correct *= decision_taken[1]['probability']
+
+    return mec, decisions, p_correct
 
 # def greedy_search(observed_arcs, model, mec, undirected_edges, err_budget=0.501):
 #     decisions = []

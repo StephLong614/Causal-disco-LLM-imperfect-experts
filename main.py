@@ -11,7 +11,7 @@ from models.oracles import EpsilonOracle
 from utils.bayes import get_prior, get_posterior
 from utils.data_generation import generate_dataset
 from utils.plotting import plot_heatmap
-from utils.dag_utils import get_undirected_edges, get_mec, get_directed_edges
+from utils.dag_utils import get_undirected_edges, get_mec
 from utils.metrics import get_mec_shd
 from utils.language_models import get_lms_probs, calibrate
 from utils.tabular_expert import get_tabular_probs
@@ -79,7 +79,6 @@ if __name__ == '__main__':
 
     plot_heatmap(nx.to_numpy_array(true_G), lbls=true_G.nodes(), dataset=args.dataset, name='true_g.pdf')
     undirected_edges = get_undirected_edges(true_G, verbose=args.verbose)
-    directed_edges = get_directed_edges(true_G, verbose=args.verbose)
 
     #lm_error = calibrate(directed_edges, codebook) 
     #print('Calibration Error: ', lm_error)
@@ -96,9 +95,10 @@ if __name__ == '__main__':
     prior = MECPrior(cpdag)
     posterior = NoisyExpert(prior, oracle.likelihoods)
 
-    new_mec, decisions = algo(observations, posterior, mec, undirected_edges, tol=args.tolerance)
+    new_mec, decisions, p_correct = algo(observations, posterior, mec, undirected_edges, tol=args.tolerance)
     shd = get_mec_shd(true_G, new_mec, args)
     #shds_scores = np.array([v for v in shds.values()])
+    print('Probability true DAG is in final MEC: %.3f' % p_correct)
     print('Average SHD for the mec: ', shd)
     print('MEC size: ', len(new_mec))
     wandb.log({'mec size': len(new_mec),

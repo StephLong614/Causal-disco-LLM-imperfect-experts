@@ -112,7 +112,8 @@ if __name__ == '__main__':
 
     new_mec, decisions, p_correct = algo(observations, prob_method, mec, undirected_edges, tol=args.tolerance)
 
-    print("\nFinal MEC", new_mec)
+    if args.verbose:
+        print("\nFinal MEC", new_mec)
 
     shd = get_mec_shd(true_G, new_mec, args)
     #shds_scores = np.array([v for v in shds.values()])

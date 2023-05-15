@@ -6,11 +6,11 @@ from utils.language_models import gpt3_scoring
 
 is_in_undirected_edges = lambda node_i, node_j, undirected_edges: ((node_i, node_j) in undirected_edges) or ((node_j, node_i) in undirected_edges)
 
-def global_scoring(gpt3_decision_probs, mec, undirected_edges, tol=0.101):
+def global_scoring(observed_arcs, model, mec, undirected_edges, **kwargs):
 
     all_scores = []
     top_indices = []
-    for i, dag in enumerate(mec):
+    for dag in mec:
         score = 0
         denom = 0
         for edge in dag:
@@ -19,7 +19,7 @@ def global_scoring(gpt3_decision_probs, mec, undirected_edges, tol=0.101):
             node_j = edge[1]
             # only score edges that are not yet determined
             if is_in_undirected_edges(node_i, node_j, undirected_edges):
-                prob = gpt3_decision_probs[(node_i, node_j)]
+                prob = model(observed_arcs, [edge])
                 # if prob is more than 50\% the LM believes that 
                 # node_i -> node_j, thus we increase the score of the graph
                 # under the model by 1 otherwise 0
@@ -29,7 +29,10 @@ def global_scoring(gpt3_decision_probs, mec, undirected_edges, tol=0.101):
                 
         all_scores.append(score/denom)
     
-    print(all_scores)
-    top_indices = np.argsort(all_scores)[-1:]
+
+    top_indices = np.argwhere(all_scores == np.amax(all_scores)).flatten()
+
     mec = [mec[i] for i in top_indices]
-    return mec, {}
+    scores = [all_scores[i] for i in top_indices]
+
+    return mec, dict(), np.mean(scores)

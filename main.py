@@ -7,7 +7,7 @@ import wandb
 import numpy as np
 import random
 
-from algo.greedy_search import greedy_search_mec_size, greedy_search_confidence
+from algo.greedy_search import greedy_search_mec_size, greedy_search_confidence, greedy_search_bic
 
 from models.noisy_expert import NoisyExpert
 from models.oracles import EpsilonOracle
@@ -24,7 +24,7 @@ np.random.seed(4)
 parser = argparse.ArgumentParser(description='Description of your program.')
 
 # Add arguments
-parser.add_argument('--algo', default="greedy", type=str, help='What algorithm to use')
+parser.add_argument('--algo', default="greedy_mec", choices=["greedy_mec", "greedy_conf", "greedy_bic", "global_scoring", "PC"], help='What algorithm to use')
 parser.add_argument('--prior', default="mec", choices=["mec", "independent"])
 parser.add_argument('--probability', default="posterior", choices=["posterior", "prior", "likelihood"])
 parser.add_argument('--dataset', default="child", type=str, help='What dataset to use')
@@ -46,13 +46,12 @@ if __name__ == '__main__':
                )
 
     match args.algo:
-        case "greedymec":
+        case "greedy_mec":
             algo = greedy_search_mec_size
-        case "greedyconf":
+        case "greedy_conf":
             algo = greedy_search_confidence
-        case "greedy2":
-            from algo.greedy_search2 import greedy_search
-            algo = greedy_search
+        case "greedy_bic":
+            algo = greedy_search_bic
         case "PC":
             algo = lambda gpt3_decision_probs, prior_prob, mec, undirected_edges, tol: (mec, {})
         case "global_scoring":
@@ -110,6 +109,9 @@ if __name__ == '__main__':
             prob_method = lambda _, edges: prior(edges)
 
     new_mec, decisions, p_correct = algo(observations, prob_method, mec, undirected_edges, tol=args.tolerance)
+
+    print(new_mec)
+    
     shd = get_mec_shd(true_G, new_mec, args)
     #shds_scores = np.array([v for v in shds.values()])
     print('Probability true DAG is in final MEC: %.3f' % p_correct)

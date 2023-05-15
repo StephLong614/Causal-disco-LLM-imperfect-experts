@@ -20,7 +20,7 @@ def greedy_search(observed_arcs, model, mec, undirected_edges, tol=0.501):
             resulting_decisions = get_decisions_from_mec(potential_new_mec, undirected_edges)
             dec = {
                 'resulting_decisions': resulting_decisions,
-                'probability': model.posterior(observed_arcs, resulting_decisions),
+                'probability': model(observed_arcs, resulting_decisions),
                 'mec_size': len(potential_new_mec)
             }
 
@@ -35,7 +35,6 @@ def greedy_search(observed_arcs, model, mec, undirected_edges, tol=0.501):
             decision_taken = decision_scores_[0]
         else:
             break
-        print(decision_taken)
 
         decisions = decision_taken[1]['resulting_decisions']
         improvement = decision_taken[1]['score'] - past_decision_score

@@ -8,7 +8,6 @@ def get_mec_shd(true_G, mec, args):
     """
     the graphs need to be ordered to be comparable
     """
-    shds = {}
     true_G = order_graph(true_G)
     target = nx.to_numpy_array(true_G)
     pred = np.stack([nx.to_numpy_array(list_of_tuples_to_digraph(dag)) for dag in mec], -1).sum(-1)

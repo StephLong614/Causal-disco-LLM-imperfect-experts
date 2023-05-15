@@ -4,24 +4,27 @@ import networkx as nx
 import os
 import pandas as pd
 import wandb
+import numpy as np
+import random
 
 from models.noisy_expert import NoisyExpert
 from models.oracles import EpsilonOracle
 
-from utils.bayes import get_prior, get_posterior
 from utils.data_generation import generate_dataset
 from utils.plotting import plot_heatmap
 from utils.dag_utils import get_undirected_edges, get_mec
 from utils.metrics import get_mec_shd
 from utils.language_models import get_lms_probs, calibrate
-from utils.tabular_expert import get_tabular_probs
 
+random.seed(4)
+np.random.seed(4)
 
 parser = argparse.ArgumentParser(description='Description of your program.')
 
 # Add arguments
 parser.add_argument('--algo', default="greedy", type=str, help='What algorithm to use')
 parser.add_argument('--prior', default="mec", choices=["mec", "independent"])
+parser.add_argument('--probability', default="posterior", choices=["posterior", "prior", "likelihood"])
 parser.add_argument('--dataset', default="child", type=str, help='What dataset to use')
 parser.add_argument('--pubmed-sources', type=int, help='How many PubMed sources to retrieve')
 parser.add_argument('--verbose', default=0, type=int, help='For debugging purposes')
@@ -93,13 +96,23 @@ if __name__ == '__main__':
     print("\nTrue Orientations:", undirected_edges)
     print("\nOrientations given by the expert:", observations)
     prior = MECPrior(cpdag)
-    posterior = NoisyExpert(prior, oracle.likelihoods)
+    model = NoisyExpert(prior, oracle.likelihoods)
 
-    new_mec, decisions, p_correct = algo(observations, posterior, mec, undirected_edges, tol=args.tolerance)
+    match args.probability:
+        case "posterior":
+            prob_method = model.posterior
+        
+        case "likelihood":
+            prob_method = model.likelihood
+
+        case "prior":
+            prob_method = lambda _, edges: prior(edges)
+
+    new_mec, decisions, p_correct = algo(observations, prob_method, mec, undirected_edges, tol=args.tolerance)
     shd = get_mec_shd(true_G, new_mec, args)
     #shds_scores = np.array([v for v in shds.values()])
     print('Probability true DAG is in final MEC: %.3f' % p_correct)
-    print('Average SHD for the mec: ', shd)
+    print("Final MEC' SHD: ", shd)
     print('MEC size: ', len(new_mec))
     wandb.log({'mec size': len(new_mec),
                'shd': shd})

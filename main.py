@@ -110,11 +110,11 @@ if __name__ == '__main__':
 
     new_mec, decisions, p_correct = algo(observations, prob_method, mec, undirected_edges, tol=args.tolerance)
 
-    print(new_mec)
-    
+    # print(new_mec)
+
     shd = get_mec_shd(true_G, new_mec, args)
     #shds_scores = np.array([v for v in shds.values()])
-    print('Probability true DAG is in final MEC: %.3f' % p_correct)
+    print('Confidence true DAG is in final MEC: %.3f' % p_correct)
     print("Final MEC' SHD: ", shd)
     print('MEC size: ', len(new_mec))
     wandb.log({'mec size': len(new_mec),

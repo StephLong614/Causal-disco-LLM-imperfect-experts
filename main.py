@@ -18,9 +18,6 @@ from utils.dag_utils import get_undirected_edges, get_mec
 from utils.metrics import get_mec_shd
 from utils.language_models import get_lms_probs, calibrate
 
-random.seed(4)
-np.random.seed(4)
-
 parser = argparse.ArgumentParser(description='Description of your program.')
 
 # Add arguments
@@ -29,6 +26,7 @@ parser.add_argument('--prior', default="mec", choices=["mec", "independent"])
 parser.add_argument('--probability', default="posterior", choices=["posterior", "prior", "likelihood"])
 parser.add_argument('--dataset', default="child", type=str, help='What dataset to use')
 parser.add_argument('--pubmed-sources', type=int, help='How many PubMed sources to retrieve')
+parser.add_argument('--seed', type=int, default=20230515, help='random seed')
 parser.add_argument('--verbose', default=0, type=int, help='For debugging purposes')
 parser.add_argument('--tabular', default=0, type=int, help='If 1 use tabular expert, else use gpt3')
 parser.add_argument('--uniform-prior', default=0, type=int, help='If set to 1 we will use the uniform prior over edges')
@@ -37,6 +35,7 @@ parser.add_argument('-tol', '--tolerance', default=0.101, type=float, help='algo
 parser.add_argument('--wandb', default=False, action="store_true", help='to log on wandb')
 
 if __name__ == '__main__':
+
     args = parser.parse_args()
     wandb.login(key='246c8f672f0416b12172d64574c12d8a7ddae387')
 
@@ -44,6 +43,9 @@ if __name__ == '__main__':
                project='causal discovery with LMs',
                mode=None if args.wandb else 'disabled'
                )
+
+    random.seed(args.seed)
+    np.random.seed(args.seed)
 
     match args.algo:
         case "greedy_mec":
@@ -110,12 +112,12 @@ if __name__ == '__main__':
 
     new_mec, decisions, p_correct = algo(observations, prob_method, mec, undirected_edges, tol=args.tolerance)
 
-    # print(new_mec)
+    print("\nFinal MEC", new_mec)
 
     shd = get_mec_shd(true_G, new_mec, args)
     #shds_scores = np.array([v for v in shds.values()])
-    print('Confidence true DAG is in final MEC: %.3f' % p_correct)
-    print("Final MEC' SHD: ", shd)
+    print('\nConfidence true DAG is in final MEC: %.3f' % p_correct)
+    print("Final MEC's SHD: ", shd)
     print('MEC size: ', len(new_mec))
     wandb.log({'mec size': len(new_mec),
                'shd': shd})

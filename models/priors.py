@@ -1,10 +1,46 @@
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 
 import numpy as np
 
-from itertools import chain
+from itertools import chain, product
 
-class Prior(ABC):
+class Prior(object):
+
+    def __init__(self, cpdag):
+        """
+        A class for calculating the prior probability of arcs in a Markov Equivalence Class. 
+        The probability corresponds to a uniform distribution over DAGs in the MEC. 
+        Hence, only edges that are undirected in the CPDAG are considered/useful.
+
+        Parameters
+        ----------
+        cpdag : causaldag.PDAG
+            A CPDAG object representing the Markov equivalence class of DAGs.
+
+        """
+
+        self._cpdag = cpdag
+
+        # Get all orientations for undirected CPDAG edges
+        self.arcs = list(
+            chain(*[[(x1, x2), (x2, x1)] for x1, x2 in cpdag.edges])
+        )
+
+        # Assign an ID to each orientation
+        self._arc_idx = dict(
+            zip(self.arcs, range(len(self.arcs)))
+        )
+
+        # Prior table (n_orientations x n_dags_in_mec)
+        self._prior = np.zeros(
+            (len(self.arcs), self.support_size())
+        )
+
+        # Get occurence of each edge in all DAGs of the MEC
+        for i, dag in enumerate(self._cpdag.all_dags()):
+            for edge, idx in self._arc_idx.items():
+                if edge in dag:
+                    self._prior[idx, i] = 1
     
     @abstractmethod
     def enumerate(self):
@@ -48,59 +84,57 @@ class Prior(ABC):
 
 class IndependentPrior(Prior):
 
-    def __init__(self, cpdag):
+    def __init__(self, cpdag, weights="uniform"):
+
+        super(IndependentPrior, self).__init__(cpdag)
+
+        self._arc_weights = np.ones(len(self.arcs))
+
+        if weights == "uniform":
+            self._arc_weights /= 2 # exactly 50% chances for an arc of being oriented either way
+        
+        elif weights == "occurences":
+            for arc, idx in self._arc_idx.items():
+                self._arc_weights[idx] = self._prior(arc)
+            
+        else:
+            raise NotImplementedError
+
+    def __call__(self, arcs):
         """
-        A class for calculating the prior probability of independent arcs. 
-        The probability corresponds to a uniform distribution over all combinations of edge orientations. 
-        Hence, only edges that are undirected in the CPDAG are considered/useful.
+        Compute the probability of the given set of arcs in the equivalence class, supposing independence.
 
         Parameters
         ----------
-        cpdag : causaldag.PDAG
-            A CPDAG object representing the Markov equivalence class of DAGs.
+        arcs : list of tuples
+            A list of arcs, each represented as a tuple (source, target), where source and target
+            are the nodes in the graph.
+
+        Returns
+        -------
+        float
+            The probability of the given set of arcs as the product of the probability of each arc.
 
         """
+        return np.prod([self._arc_weights[self._arc_idx[e]] for e in arcs])
+    
+    def enumerate(self):
+        """
+        All possible complete orientations of CPDAG's edges. 
 
-        raise NotImplementedError
+        Returns
+        -------
+        generator
+            each item is a list of arcs.
+        """
+        for complete_orientation in product(*[(self.arcs[i], self.arcs[i+1]) for i in range(0, len(self.arcs), 2)]):
 
+            yield self(complete_orientation), complete_orientation
+
+    def support_size(self):
+        return 2 ** (len(self.arcs) // 2)
+    
 class MECPrior(Prior):
-    def __init__(self, cpdag):
-        """
-        A class for calculating the prior probability of arcs in a Markov Equivalence Class. 
-        The probability corresponds to a uniform distribution over DAGs in the MEC. 
-        Hence, only edges that are undirected in the CPDAG are considered/useful.
-
-        Parameters
-        ----------
-        cpdag : causaldag.PDAG
-            A CPDAG object representing the Markov equivalence class of DAGs.
-
-        """
-
-        self._cpdag = cpdag
-
-        # Get all orientations for undirected CPDAG edges
-        self.arcs = list(
-            chain(*[[(x1, x2), (x2, x1)] for x1, x2 in cpdag.edges])
-        )
-
-        # Assign an ID to each orientation
-        self._arc_idx = dict(
-            zip(self.arcs, range(len(self.arcs)))
-        )
-
-        # Prior table (n_orientations x n_dags_in_mec)
-        self._prior = np.zeros(
-            (len(self.arcs), self.support_size())
-        )
-
-        # Get occurence of each edge in all DAGs of the MEC
-        for i, dag in enumerate(self._cpdag.all_dags()):
-            for edge, idx in self._arc_idx.items():
-                if edge in dag:
-                    self._prior[idx, i] = 1
-
-        super().__init__()
 
     def __call__(self, arcs):
         """

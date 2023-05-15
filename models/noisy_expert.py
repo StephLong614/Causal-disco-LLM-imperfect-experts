@@ -31,7 +31,6 @@ class NoisyExpert(object):
             # p(obs|true)
             ans += self.likelihood(obs_arcs, true_arcs) * prob
 
-        # uniform prior over DAGs in MEC
         return ans
     
     # likelihood of a set of orientations is factorizable P(O|E)

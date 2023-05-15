@@ -7,6 +7,8 @@ import wandb
 import numpy as np
 import random
 
+from algo.greedy_search import greedy_search_mec_size, greedy_search_confidence
+
 from models.noisy_expert import NoisyExpert
 from models.oracles import EpsilonOracle
 
@@ -44,9 +46,10 @@ if __name__ == '__main__':
                )
 
     match args.algo:
-        case "greedy":
-            from algo.greedy_search import greedy_search
-            algo = greedy_search
+        case "greedymec":
+            algo = greedy_search_mec_size
+        case "greedyconf":
+            algo = greedy_search_confidence
         case "greedy2":
             from algo.greedy_search2 import greedy_search
             algo = greedy_search
@@ -59,11 +62,11 @@ if __name__ == '__main__':
     match args.prior:
         case "mec":
             from models.priors import MECPrior
-            prior = MECPrior
+            prior_type = MECPrior
         
         case "independent":
             from models.priors import IndependentPrior
-            prior = IndependentPrior
+            prior_type = IndependentPrior
     
     if not os.path.exists("_raw_bayesian_nets"):
         from utils.download_datasets import download_datasets
@@ -93,7 +96,7 @@ if __name__ == '__main__':
 
     print("\nTrue Orientations:", undirected_edges)
     print("\nOrientations given by the expert:", observations)
-    prior = MECPrior(cpdag)
+    prior = prior_type(cpdag)
     model = NoisyExpert(prior, oracle.likelihoods)
 
     match args.probability:

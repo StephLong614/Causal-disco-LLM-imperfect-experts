@@ -43,8 +43,6 @@ if __name__ == '__main__':
                mode=None if args.wandb else 'disabled'
                )
 
-
-
     match args.algo:
         case "greedy":
             from algo.greedy_search import greedy_search
@@ -70,12 +68,6 @@ if __name__ == '__main__':
     if not os.path.exists("_raw_bayesian_nets"):
         from utils.download_datasets import download_datasets
         download_datasets()
-    
-    try:
-        codebook = pd.read_csv('codebooks/' + args.dataset + '.csv')
-    except:
-        print('cannot load the codebook')
-        codebook = None
 
     true_G, data = generate_dataset('_raw_bayesian_nets/' + args.dataset + '.bif', n=1000, seed=0)
     cpdag, mec = get_mec(true_G)
@@ -91,7 +83,13 @@ if __name__ == '__main__':
         observations = oracle.decide_all()
 
     else:
-        expert_probs = get_lms_probs(undirected_edges, codebook)
+        try:
+            codebook = pd.read_csv('codebooks/' + args.dataset + '.csv')
+        except:
+            print('cannot load the codebook')
+            codebook = None
+    
+        observations = get_lms_probs(undirected_edges, codebook)
 
     print("\nTrue Orientations:", undirected_edges)
     print("\nOrientations given by the expert:", observations)

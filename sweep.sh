@@ -6,14 +6,14 @@ do
         do
             for a in "greedy_mec" "greedy_conf"
             do
-                python3 main.py --tol $t --prior $p --algo $a --wandb
+                python3 main.py --tol $t --prior $p --algo $a --dataset $d --wandb
             done
         done
 
-        for a in "greedy_bic" "global_scoring" "PC"
+        for a in "greedy_bic" "global_scoring"
         do
-            python3 main.py --tol $t --prior $p --algo $a --wandb
+            python3 main.py --tol $t --prior $p --algo $a --dataset $d --wandb
         done
-        
     done
+    python3 main.py --tol $t --prior $p --algo "PC" --dataset $d --wandb
 done

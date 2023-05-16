@@ -77,3 +77,16 @@ def list_of_tuples_to_digraph(list_of_tuples):
         G.add_edge(node_i, node_j)
     G = order_graph(G)
     return G
+
+def is_dag_in_mec(G, mec):
+
+    for dag in mec:
+        ans = True
+        for edge in dag:
+            if edge not in G.edges:
+                ans = False
+                break
+        if ans:
+            return 1.
+        
+    return 0.

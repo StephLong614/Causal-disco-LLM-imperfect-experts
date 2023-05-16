@@ -14,7 +14,7 @@ from models.oracles import EpsilonOracle
 
 from utils.data_generation import generate_dataset
 from utils.plotting import plot_heatmap
-from utils.dag_utils import get_undirected_edges, get_mec
+from utils.dag_utils import get_undirected_edges, get_mec, is_dag_in_mec
 from utils.metrics import get_mec_shd
 from utils.language_models import get_lms_probs, calibrate
 
@@ -29,6 +29,7 @@ parser.add_argument('--probability', default="posterior", choices=["posterior", 
 parser.add_argument('--pubmed-sources', type=int, help='How many PubMed sources to retrieve')
 
 parser.add_argument('--epsilon', default=0.05, type=float, help='algorithm error tolerance')
+parser.add_argument('--gpt-tmp', default=0, type=float, help='gpt temperature for randomness')
 parser.add_argument('-tol', '--tolerance', default=0.101, type=float, help='algorithm error tolerance')
 
 parser.add_argument('--seed', type=int, default=20230515, help='random seed')
@@ -38,6 +39,7 @@ parser.add_argument('--wandb', default=False, action="store_true", help='to log 
 if __name__ == '__main__':
 
     args = parser.parse_args()
+
     wandb.login(key='246c8f672f0416b12172d64574c12d8a7ddae387')
 
     wandb.init(config=args,
@@ -57,13 +59,18 @@ if __name__ == '__main__':
             algo = greedy_search_bic
             args.tolerance = None
 
-        case "PC":
-            algo = lambda a, b, mec, *_: (mec, dict(), 1.)
-            args.tolerance = None
         case "global_scoring":
             from algo.global_scoring import global_scoring
             algo = global_scoring
             args.tolerance = None
+
+        case "PC":
+            algo = lambda a, b, mec, c, tol: (mec, dict(), 1.)
+            args.tolerance = None
+        # case "vanilla":
+        #     from algo.
+        #     algo = 
+        #     args.tolerance = None
     
     match args.prior:
         case "mec":
@@ -78,7 +85,9 @@ if __name__ == '__main__':
         from utils.download_datasets import download_datasets
         download_datasets()
 
-    true_G, data = generate_dataset('_raw_bayesian_nets/' + args.dataset + '.bif', n=1000, seed=0)
+    print(args)
+
+    true_G, _ = generate_dataset('_raw_bayesian_nets/' + args.dataset + '.bif')
     cpdag, mec = get_mec(true_G)
 
     plot_heatmap(nx.to_numpy_array(true_G), lbls=true_G.nodes(), dataset=args.dataset, name='true_g.pdf')
@@ -99,14 +108,14 @@ if __name__ == '__main__':
             print('cannot load the codebook')
             codebook = None
     
-        likelihoods = get_lms_probs(undirected_edges, codebook)
+        likelihoods = get_lms_probs(undirected_edges, codebook, tmp=args.gpt_tmp, seed=args.seed)
         observations = likelihoods.keys()
 
     print("\nTrue Orientations:", undirected_edges)
     print("\nOrientations given by the expert:", observations)
     prior = prior_type(cpdag)
     model = NoisyExpert(prior, likelihoods)
-    print(likelihoods)
+
     match args.probability:
         case "posterior":
             prob_method = model.posterior
@@ -122,7 +131,13 @@ if __name__ == '__main__':
     if args.verbose:
         print("\nFinal MEC", new_mec)
 
-    shd, learned_G = get_mec_shd(true_G, new_mec, args)
+    shd, learned_adj = get_mec_shd(true_G, new_mec)
+    
+    learned_G = nx.from_numpy_array(learned_adj, create_using=nx.DiGraph)
+    learned_G = nx.relabel_nodes(learned_G, {i: n for i, n in zip(learned_G.nodes, true_G.nodes)})
+
+    diff = nx.difference(learned_G, true_G)
+    print("\nFinal wrong orientations:", diff.edges)
 
     #shds_scores = np.array([v for v in shds.values()])
     print('\nConfidence true DAG is in final MEC: %.3f' % p_correct)
@@ -130,7 +145,8 @@ if __name__ == '__main__':
     print('MEC size: ', len(new_mec))
     wandb.log({'mec size': len(new_mec),
                'shd': shd,
-               'prob-correct': p_correct})
+               'prob-correct': p_correct,
+               'true-still-in-MEC': is_dag_in_mec(true_G, new_mec)})
     wandb.finish()
 
-    plot_heatmap(learned_G, lbls=true_G.nodes(), dataset=args.dataset, name=f'pred-{args.algo}-prior={args.prior}-tol={args.tolerance}-tabular={args.tabular}.pdf')
+    plot_heatmap(learned_adj, lbls=true_G.nodes(), dataset=args.dataset, name=f'pred-{args.algo}-prior={args.prior}-tol={args.tolerance}-tabular={args.tabular}.pdf')

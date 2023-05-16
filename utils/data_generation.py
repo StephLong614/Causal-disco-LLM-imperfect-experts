@@ -19,9 +19,7 @@ class HiddenPrints:
         sys.stdout.close()
         sys.stdout = self._original_stdout
 
-def generate_dataset(bn_path, n=10000, seed=42):
-    # XXX: unfortunately, there is no better way to control randomness in bn.sampling
-    np.random.seed(seed)
+def generate_dataset(bn_path, n=1000):
     
     # Load DAG, probability tables, etc.
     with HiddenPrints():

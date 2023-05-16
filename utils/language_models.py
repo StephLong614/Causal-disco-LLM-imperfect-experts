@@ -6,7 +6,7 @@ import scipy
 from utils.apis import pubmed_api
 
 
-def get_lms_probs(undirected_edges, codebook):
+def get_lms_probs(undirected_edges, codebook, tmp=0., seed=20230515):
   """
   return: dictionary of tuple and their likelihood of being wrong by the LM
   example {('Age', 'Disease'): 0.05, ...}
@@ -27,7 +27,7 @@ def get_lms_probs(undirected_edges, codebook):
                 The answer is: 
                 """
       
-      log_scores = gpt3_scoring(options, options=['(A', '(B'], lock_token=' (')
+      log_scores = gpt3_scoring(options, options=['(A', '(B'], lock_token=' (', tmp=tmp, seed=seed)
       scores = scipy.special.softmax(-log_scores)
       
       if scores[0] > scores[1]:
@@ -69,7 +69,7 @@ def calibrate(directed_edges, codebook):
 
 
 def gpt3_call(engine="text-ada-001", prompt="", max_tokens=128, temperature=0, 
-              logprobs=1, echo=False):
+              logprobs=1, seed=20230515, echo=False):
   LLM_CACHE = {}
   try:
       with open('llm_cache.pickle', 'rb') as f:
@@ -79,7 +79,7 @@ def gpt3_call(engine="text-ada-001", prompt="", max_tokens=128, temperature=0,
   full_query = ""
   for p in prompt:
     full_query += p
-  id = tuple((engine, full_query, max_tokens, temperature, logprobs, echo))
+  id = tuple((engine, full_query, max_tokens, temperature, logprobs, echo, seed))
   if id in LLM_CACHE.keys():
     response = LLM_CACHE[id]
   else:
@@ -96,10 +96,10 @@ def gpt3_call(engine="text-ada-001", prompt="", max_tokens=128, temperature=0,
   return response
 
 
-def gpt3_scoring(prompt, options, engine="text-davinci-003", verbose=False, n_tokens_score=9999999999, lock_token=None): 
+def gpt3_scoring(prompt, options, engine="text-davinci-003", verbose=False, n_tokens_score=9999999999, lock_token=None, tmp=0., seed=20230515): 
     verbose and print("Scoring", len(options), "options") 
     gpt3_prompt_options = [f"{prompt}{o}" for o in options] 
-    response = gpt3_call(engine=engine, prompt=gpt3_prompt_options, max_tokens=0, logprobs=1, temperature=0, echo=True,) 
+    response = gpt3_call(engine=engine, prompt=gpt3_prompt_options, max_tokens=0, logprobs=1, temperature=tmp, echo=True, seed=seed) 
     scores = [] 
     for option, choice in zip(options, response["choices"]): 
         if lock_token is not None: 

@@ -1,10 +1,12 @@
 import numpy as np
 
-from utils.dag_utils import get_decisions_from_mec
+from utils.dag_utils import get_decisions_from_mec, get_mec
 
-def greedy_search_mec_size(observed_arcs, model, mec, undirected_edges, tol=0.501):
+def greedy_search_mec_size(observed_arcs, model, cpdag, undirected_edges, tol=0.501):
     decisions = []
     p_correct = 1.
+    mec = get_mec(cpdag)
+
     while (p_correct > 1 - tol) and (len(mec) > 1):
         decision_scores_ = {}
         
@@ -34,9 +36,11 @@ def greedy_search_mec_size(observed_arcs, model, mec, undirected_edges, tol=0.50
     
     return mec, decisions, p_correct
 
-def greedy_search_confidence(observed_arcs, model, mec, undirected_edges, tol=0.501):
+def greedy_search_confidence(observed_arcs, model, cpdag, undirected_edges, tol=0.501):
     decisions = []
     p_correct = 1.
+    mec = get_mec(cpdag)
+
     while (p_correct > 1 - tol) and (len(mec) > 1):
         decision_scores_ = {}
         
@@ -68,12 +72,14 @@ def greedy_search_confidence(observed_arcs, model, mec, undirected_edges, tol=0.
 
 get_cost = lambda p, size: np.log(p) - 0.5 * size
         
-def greedy_search_bic(observed_arcs, model, mec, undirected_edges, **kwargs):
+def greedy_search_bic(observed_arcs, model, cpdag, undirected_edges, **kwargs):
     decisions = []
 
     p_correct = 1.
     past_decision_score = -10000
     improvement = 1e-3
+    mec = get_mec(cpdag)
+
     while improvement > 0:
         decision_scores = {}
         

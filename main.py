@@ -1,5 +1,7 @@
 import argparse
 
+from causaldag import DAG
+
 import networkx as nx
 import os
 import pandas as pd
@@ -14,14 +16,14 @@ from models.oracles import EpsilonOracle
 
 from utils.data_generation import generate_dataset
 from utils.plotting import plot_heatmap
-from utils.dag_utils import get_undirected_edges, get_mec, is_dag_in_mec
+from utils.dag_utils import get_undirected_edges, is_dag_in_mec
 from utils.metrics import get_mec_shd
 from utils.language_models import get_lms_probs, calibrate
 
 parser = argparse.ArgumentParser(description='Description of your program.')
 
 # Add arguments
-parser.add_argument('--algo', default="greedy_mec", choices=["greedy_mec", "greedy_conf", "greedy_bic", "global_scoring", "PC"], help='What algorithm to use')
+parser.add_argument('--algo', default="greedy_mec", choices=["greedy_mec", "greedy_conf", "greedy_bic", "global_scoring", "PC", "blind"], help='What algorithm to use')
 parser.add_argument('--dataset', default="child", type=str, help='What dataset to use')
 parser.add_argument('--tabular', default=0, type=int, help='If 1 use tabular expert, else use gpt3')
 parser.add_argument('--prior', default="mec", choices=["mec", "independent"])
@@ -35,6 +37,10 @@ parser.add_argument('-tol', '--tolerance', default=0.101, type=float, help='algo
 parser.add_argument('--seed', type=int, default=20230515, help='random seed')
 parser.add_argument('--verbose', default=0, type=int, help='For debugging purposes')
 parser.add_argument('--wandb', default=False, action="store_true", help='to log on wandb')
+
+def blindly_follow_expert(observed_arcs, model, cpdag, *args, **kwargs):
+
+    return [list(observed_arcs) + list(cpdag.arcs)], observed_arcs, model(observed_arcs, observed_arcs)
 
 if __name__ == '__main__':
 
@@ -67,10 +73,9 @@ if __name__ == '__main__':
         case "PC":
             algo = lambda a, b, mec, c, tol: (mec, dict(), 1.)
             args.tolerance = None
-        # case "vanilla":
-        #     from algo.
-        #     algo = 
-        #     args.tolerance = None
+        case "blind":
+            algo = blindly_follow_expert
+            args.tolerance = None
     
     match args.prior:
         case "mec":
@@ -88,7 +93,7 @@ if __name__ == '__main__':
     print(args)
 
     true_G, _ = generate_dataset('_raw_bayesian_nets/' + args.dataset + '.bif')
-    cpdag, mec = get_mec(true_G)
+    cpdag = DAG.from_nx(true_G).cpdag()
 
     plot_heatmap(nx.to_numpy_array(true_G), lbls=true_G.nodes(), dataset=args.dataset, name='true_g.pdf')
     undirected_edges = get_undirected_edges(true_G, verbose=args.verbose)
@@ -126,7 +131,7 @@ if __name__ == '__main__':
         case "prior":
             prob_method = lambda _, edges: prior(edges)
 
-    new_mec, decisions, p_correct = algo(observations, prob_method, mec, undirected_edges, tol=args.tolerance)
+    new_mec, decisions, p_correct = algo(observations, prob_method, cpdag, undirected_edges, tol=args.tolerance)
 
     if args.verbose:
         print("\nFinal MEC", new_mec)

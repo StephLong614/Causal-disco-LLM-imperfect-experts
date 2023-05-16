@@ -3,13 +3,16 @@ import numpy as np
 import operator
 
 from utils.language_models import gpt3_scoring
+from utils.dag_utils import get_mec
 
 is_in_undirected_edges = lambda node_i, node_j, undirected_edges: ((node_i, node_j) in undirected_edges) or ((node_j, node_i) in undirected_edges)
 
-def global_scoring(observed_arcs, model, mec, undirected_edges, **kwargs):
+def global_scoring(observed_arcs, model, cpdag, undirected_edges, **kwargs):
 
     all_scores = []
     top_indices = []
+
+    mec = get_mec(cpdag)
     for dag in mec:
         score = 0
         denom = 0

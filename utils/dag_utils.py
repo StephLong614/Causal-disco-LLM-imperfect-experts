@@ -2,36 +2,15 @@ from causaldag import DAG
 import networkx as nx
 import numpy as np
 
-def get_mec(true_G):
+def get_mec(G_cpdag):
 
-    G_cpdag = DAG.from_nx(true_G).cpdag()
     mec = []
 
     for dag in G_cpdag.all_dags():
         g = [edge for edge in dag]
         mec.append(g)
     
-    return G_cpdag, mec
-
-# def get_directed_edges(true_G, verbose=True):
-#     G_cpdag = DAG.from_amat(nx.adjacency_matrix(true_G)).cpdag()
-#     # List all undirected edges
-#     nodes = list(true_G.nodes())
-#     A_cpdag = G_cpdag.to_amat()[0]
-#     directed_edges = []
-
-#     edges_count = {}
-
-#     for i in range(len(nodes)):
-#         for j in range(i + 1, len(nodes)):
-#             if not (A_cpdag[i, j] == 1 and A_cpdag[j, i] == 1):
-#                 if verbose:
-#                     print(f"Undirected: {nodes[i]} <-> {nodes[j]}")
-#                 edges_count[f"{nodes[i]} <-> {nodes[j]}"] = [0,0]
-#                 #edges_count[f"{nodes[j]} -> {nodes[i]}"] = 0
-#                 directed_edges.append((nodes[i], nodes[j]))
-                
-#     return directed_edges
+    return mec
 
 def get_undirected_edges(true_G, verbose=False):
 

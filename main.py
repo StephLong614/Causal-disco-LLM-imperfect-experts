@@ -31,7 +31,7 @@ parser.add_argument('--probability', default="posterior", choices=["posterior", 
 parser.add_argument('--pubmed-sources', type=int, help='How many PubMed sources to retrieve')
 
 parser.add_argument('--epsilon', default=0.05, type=float, help='algorithm error tolerance')
-parser.add_argument('--gpt-tmp', default=0, type=float, help='gpt temperature for randomness')
+parser.add_argument('--gpt-tmp', default=0.7, type=float, help='gpt temperature for randomness')
 parser.add_argument('-tol', '--tolerance', default=0.101, type=float, help='algorithm error tolerance')
 
 parser.add_argument('--seed', type=int, default=20230515, help='random seed')
@@ -49,7 +49,7 @@ if __name__ == '__main__':
     wandb.login(key='246c8f672f0416b12172d64574c12d8a7ddae387')
 
     wandb.init(config=args,
-               project='causal discovery with LMs',
+               project='causal discovery',
                mode=None if args.wandb else 'disabled'
                )
 

@@ -49,7 +49,7 @@ if __name__ == '__main__':
     wandb.login(key='246c8f672f0416b12172d64574c12d8a7ddae387')
 
     wandb.init(config=args,
-               project='causal discovery',
+               project='causal discovery with LMs',
                mode=None if args.wandb else 'disabled'
                )
 

@@ -1,5 +1,5 @@
 import argparse
-from causaldag import DAG
+
 import networkx as nx
 import os
 import pandas as pd
@@ -22,16 +22,17 @@ parser = argparse.ArgumentParser(description='Description of your program.')
 
 # Add arguments
 parser.add_argument('--algo', default="greedy_mec", choices=["greedy_mec", "greedy_conf", "greedy_bic", "global_scoring", "PC"], help='What algorithm to use')
+parser.add_argument('--dataset', default="child", type=str, help='What dataset to use')
+parser.add_argument('--tabular', default=0, type=int, help='If 1 use tabular expert, else use gpt3')
 parser.add_argument('--prior', default="mec", choices=["mec", "independent"])
 parser.add_argument('--probability', default="posterior", choices=["posterior", "prior", "likelihood"])
-parser.add_argument('--dataset', default="child", type=str, help='What dataset to use')
 parser.add_argument('--pubmed-sources', type=int, help='How many PubMed sources to retrieve')
-parser.add_argument('--seed', type=int, default=20230515, help='random seed')
-parser.add_argument('--verbose', default=0, type=int, help='For debugging purposes')
-parser.add_argument('--tabular', default=0, type=int, help='If 1 use tabular expert, else use gpt3')
-parser.add_argument('--uniform-prior', default=0, type=int, help='If set to 1 we will use the uniform prior over edges')
+
 parser.add_argument('--epsilon', default=0.05, type=float, help='algorithm error tolerance')
 parser.add_argument('-tol', '--tolerance', default=0.101, type=float, help='algorithm error tolerance')
+
+parser.add_argument('--seed', type=int, default=20230515, help='random seed')
+parser.add_argument('--verbose', default=0, type=int, help='For debugging purposes')
 parser.add_argument('--wandb', default=False, action="store_true", help='to log on wandb')
 
 if __name__ == '__main__':
@@ -54,11 +55,15 @@ if __name__ == '__main__':
             algo = greedy_search_confidence
         case "greedy_bic":
             algo = greedy_search_bic
+            args.tolerance = None
+
         case "PC":
-            algo = lambda gpt3_decision_probs, prior_prob, mec, undirected_edges, tol: (mec, {})
+            algo = lambda a, b, mec, *_: (mec, dict(), 1.)
+            args.tolerance = None
         case "global_scoring":
             from algo.global_scoring import global_scoring
             algo = global_scoring
+            args.tolerance = None
     
     match args.prior:
         case "mec":
@@ -85,6 +90,7 @@ if __name__ == '__main__':
     if args.tabular:
         oracle = EpsilonOracle(undirected_edges, epsilon=args.epsilon)
         observations = oracle.decide_all()
+        likelihoods = oracle.likelihoods
 
     else:
         try:
@@ -93,13 +99,14 @@ if __name__ == '__main__':
             print('cannot load the codebook')
             codebook = None
     
-        observations = get_lms_probs(undirected_edges, codebook)
+        likelihoods = get_lms_probs(undirected_edges, codebook)
+        observations = likelihoods.keys()
 
     print("\nTrue Orientations:", undirected_edges)
     print("\nOrientations given by the expert:", observations)
     prior = prior_type(cpdag)
-    model = NoisyExpert(prior, oracle.likelihoods)
-
+    model = NoisyExpert(prior, likelihoods)
+    print(likelihoods)
     match args.probability:
         case "posterior":
             prob_method = model.posterior
@@ -115,15 +122,15 @@ if __name__ == '__main__':
     if args.verbose:
         print("\nFinal MEC", new_mec)
 
-    shd = get_mec_shd(true_G, new_mec, args)
+    shd, learned_G = get_mec_shd(true_G, new_mec, args)
+
     #shds_scores = np.array([v for v in shds.values()])
     print('\nConfidence true DAG is in final MEC: %.3f' % p_correct)
     print("Final MEC's SHD: ", shd)
     print('MEC size: ', len(new_mec))
     wandb.log({'mec size': len(new_mec),
-               'shd': shd})
+               'shd': shd,
+               'prob-correct': p_correct})
     wandb.finish()
-    #for k, v in shds.items():
-    #    print(v)
-    #print('PC mec size: ', len(mec))
-    #print('Greedy mec size: ', len(new_mec))
+
+    plot_heatmap(learned_G, lbls=true_G.nodes(), dataset=args.dataset, name=f'pred-{args.algo}-prior={args.prior}-tol={args.tolerance}-tabular={args.tabular}.pdf')

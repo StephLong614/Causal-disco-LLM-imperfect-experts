@@ -1,4 +1,3 @@
-import operator
 import numpy as np
 
 from utils.dag_utils import get_decisions_from_mec
@@ -69,7 +68,7 @@ def greedy_search_confidence(observed_arcs, model, mec, undirected_edges, tol=0.
 
 get_cost = lambda p, size: np.log(p) - 0.5 * size
         
-def greedy_search_bic(observed_arcs, model, mec, undirected_edges, tol=0.501):
+def greedy_search_bic(observed_arcs, model, mec, undirected_edges, **kwargs):
     decisions = []
 
     p_correct = 1.

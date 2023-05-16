@@ -2,7 +2,6 @@ from cdt.metrics import SHD
 import networkx as nx
 import numpy as np
 from utils.dag_utils import list_of_tuples_to_digraph, order_graph 
-from utils.plotting import plot_heatmap
 
 def get_mec_shd(true_G, mec, args):
     """
@@ -13,7 +12,7 @@ def get_mec_shd(true_G, mec, args):
     pred = np.stack([nx.to_numpy_array(list_of_tuples_to_digraph(dag)) for dag in mec], -1).sum(-1)
     pred = np.clip(pred, 0, 1)
     shd = SHD(target, pred, double_for_anticausal=False)
-    return shd
+    return shd, pred
 
     #for i, G in enumerate(mec):
     #    G = list_of_tuples_to_digraph(G)

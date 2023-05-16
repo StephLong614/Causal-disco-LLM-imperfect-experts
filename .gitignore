@@ -1,3 +1,5 @@
 **/__pycache__/
 figures/
 _raw_bayesian_nets/
+/wandb/
+.DS_Store

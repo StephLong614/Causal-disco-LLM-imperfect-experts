@@ -152,4 +152,4 @@ if __name__ == '__main__':
                'true-still-in-MEC': is_dag_in_mec(true_G, new_mec)})
     wandb.finish()
 
-    plot_heatmap(learned_adj, lbls=true_G.nodes(), dataset=args.dataset, name=f'pred-{args.algo}-prior={args.prior}-tol={args.tolerance}-tabular={args.tabular}.pdf')
+    # plot_heatmap(learned_adj, lbls=true_G.nodes(), dataset=args.dataset, name=f'pred-{args.algo}-prior={args.prior}-tol={args.tolerance}-tabular={args.tabular}.pdf')

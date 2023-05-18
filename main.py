@@ -31,7 +31,6 @@ parser.add_argument('--probability', default="posterior", choices=["posterior", 
 parser.add_argument('--pubmed-sources', type=int, help='How many PubMed sources to retrieve')
 
 parser.add_argument('--epsilon', default=0.05, type=float, help='algorithm error tolerance')
-parser.add_argument('--gpt-tmp', default=0.7, type=float, help='gpt temperature for randomness')
 parser.add_argument('-tol', '--tolerance', default=0.101, type=float, help='algorithm error tolerance')
 
 parser.add_argument('--seed', type=int, default=20230515, help='random seed')
@@ -95,7 +94,7 @@ if __name__ == '__main__':
     true_G, _ = generate_dataset('_raw_bayesian_nets/' + args.dataset + '.bif')
     cpdag = DAG.from_nx(true_G).cpdag()
 
-    plot_heatmap(nx.to_numpy_array(true_G), lbls=true_G.nodes(), dataset=args.dataset, name='true_g.pdf')
+    #plot_heatmap(nx.to_numpy_array(true_G), lbls=true_G.nodes(), dataset=args.dataset, name='true_g.pdf')
     undirected_edges = get_undirected_edges(true_G, verbose=args.verbose)
 
     #lm_error = calibrate(directed_edges, codebook) 
@@ -113,7 +112,7 @@ if __name__ == '__main__':
             print('cannot load the codebook')
             codebook = None
     
-        likelihoods = get_lms_probs(undirected_edges, codebook, tmp=args.gpt_tmp, seed=args.seed)
+        likelihoods = get_lms_probs(undirected_edges, codebook)
         observations = likelihoods.keys()
 
     print("\nTrue Orientations:", undirected_edges)

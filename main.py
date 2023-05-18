@@ -25,7 +25,7 @@ parser = argparse.ArgumentParser(description='Description of your program.')
 # Add arguments
 parser.add_argument('--algo', default="greedy_mec", choices=["greedy_mec", "greedy_conf", "greedy_bic", "global_scoring", "PC", "blind"], help='What algorithm to use')
 parser.add_argument('--dataset', default="child", type=str, help='What dataset to use')
-parser.add_argument('--tabular', default=0, type=int, help='If 1 use tabular expert, else use gpt3')
+parser.add_argument('--tabular', default=False, action="store_true", help='Use tabular expert, else use gpt3')
 parser.add_argument('--prior', default="mec", choices=["mec", "independent"])
 parser.add_argument('--probability', default="posterior", choices=["posterior", "prior", "likelihood"])
 parser.add_argument('--pubmed-sources', type=int, help='How many PubMed sources to retrieve')
@@ -34,7 +34,7 @@ parser.add_argument('--epsilon', default=0.05, type=float, help='algorithm error
 parser.add_argument('-tol', '--tolerance', default=0.101, type=float, help='algorithm error tolerance')
 
 parser.add_argument('--seed', type=int, default=20230515, help='random seed')
-parser.add_argument('--verbose', default=0, type=int, help='For debugging purposes')
+parser.add_argument('--verbose', default=False, action="store_true", help='For debugging purposes')
 parser.add_argument('--wandb', default=False, action="store_true", help='to log on wandb')
 
 def blindly_follow_expert(observed_arcs, model, cpdag, *args, **kwargs):
@@ -112,8 +112,7 @@ if __name__ == '__main__':
             print('cannot load the codebook')
             codebook = None
     
-        likelihoods = get_lms_probs(undirected_edges, codebook)
-        observations = likelihoods.keys()
+        likelihoods, observations = get_lms_probs(undirected_edges, codebook)
 
     print("\nTrue Orientations:", undirected_edges)
     print("\nOrientations given by the expert:", observations)
@@ -130,7 +129,7 @@ if __name__ == '__main__':
         case "prior":
             prob_method = lambda _, edges: prior(edges)
 
-    new_mec, decisions, p_correct = algo(observations, prob_method, cpdag, undirected_edges, tol=args.tolerance)
+    new_mec, decisions, p_correct = algo(observations, prob_method, cpdag, likelihoods, tol=args.tolerance)
 
     if args.verbose:
         print("\nFinal MEC", new_mec)

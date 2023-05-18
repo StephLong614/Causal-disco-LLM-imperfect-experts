@@ -13,6 +13,7 @@ def get_lms_probs(undirected_edges, codebook):
   """
 
   gpt3_decision_probs = {}
+  decisions = []
 
   for edge in undirected_edges:
       node_i = edge[0]
@@ -30,12 +31,15 @@ def get_lms_probs(undirected_edges, codebook):
       log_scores = gpt3_scoring(options, options=['(A', '(B'], lock_token=' (')
       scores = scipy.special.softmax(-log_scores)
       
-      if scores[0] > scores[1]:
-        gpt3_decision_probs[(node_i, node_j)] = scores[0]
-      else:
-        gpt3_decision_probs[(node_j, node_i)] = scores[1]
+      gpt3_decision_probs[(node_i, node_j)] = scores[0]
+      gpt3_decision_probs[(node_j, node_i)] = scores[1]
 
-  return gpt3_decision_probs
+      if scores[0] > scores[1]:
+        decisions.append((node_i, node_j))
+      else:
+        decisions.append((node_j, node_i))
+
+  return gpt3_decision_probs, decisions
 
 
 def calibrate(directed_edges, codebook):

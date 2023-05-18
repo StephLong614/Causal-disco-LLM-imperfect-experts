@@ -81,16 +81,13 @@ class EpsilonOracle(BaseOracle):
         else:
             true_edge, false_edge = (x2, x1), (x1, x2)
         
+        self.likelihoods[false_edge] = self.epsilon
+        self.likelihoods[true_edge] = 1 - self.epsilon
+
         if self.random_state.rand() < self.epsilon:
-            
-            self.likelihoods[false_edge] = self.epsilon
-            
             return false_edge  
         
         else:
-            
-            self.likelihoods[true_edge] = 1 - self.epsilon
-            
             return true_edge
 
     def decide_all(self):

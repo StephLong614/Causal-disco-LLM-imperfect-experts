@@ -16,7 +16,7 @@ from models.oracles import EpsilonOracle
 
 from utils.data_generation import generate_dataset
 from utils.plotting import plot_heatmap
-from utils.dag_utils import get_undirected_edges, is_dag_in_mec
+from utils.dag_utils import get_undirected_edges, is_dag_in_mec, get_mec
 from utils.metrics import get_mec_shd
 from utils.language_models import get_lms_probs, calibrate
 
@@ -45,8 +45,6 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    wandb.login(key='246c8f672f0416b12172d64574c12d8a7ddae387')
-
     wandb.init(config=args,
                project='causal discovery with LMs',
                mode=None if args.wandb else 'disabled'
@@ -70,7 +68,7 @@ if __name__ == '__main__':
             args.tolerance = None
 
         case "PC":
-            algo = lambda a, b, mec, c, tol: (mec, dict(), 1.)
+            algo = lambda a, b, cpdag, c, tol: (get_mec(cpdag), dict(), 1.)
             args.tolerance = None
         case "blind":
             algo = blindly_follow_expert

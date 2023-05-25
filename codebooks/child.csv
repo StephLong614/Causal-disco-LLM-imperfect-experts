@@ -4,7 +4,7 @@ node,var_name,var_description
 3,AgeAtDiseaseStart,age of infant at disease presentation
 4,LVH,thickening of the left ventricle
 5,DuctFlow,blood flow across the ductus arteriosus
-6,CardiacMixing,the level when breathing oxygen depends on the degree of mixing in the blood
+6,CardiacMixing,when oxygenated and deoxygenated blood are mixed
 7,LungParench,the state of the blood vessels in the lungs
 8,LungFlow,low blood flow in the lungs
 9,Sick,presence of an illness

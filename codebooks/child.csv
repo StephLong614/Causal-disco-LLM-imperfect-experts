@@ -1,7 +1,7 @@
 node,var_name,var_description
 1,BirthAsphyxia,lack of oxygen to the blood during birth
 2,Disease,a condition where a baby's skin turns blue
-3,AgeAtDiseaseStart,age of infant at disease presentation
+3,Age,age of infant at disease presentation
 4,LVH,thickening of the left ventricle
 5,DuctFlow,blood flow across the ductus arteriosus
 6,CardiacMixing,mixing of oxygenated and deoxygenated blood
@@ -13,7 +13,7 @@ node,var_name,var_description
 12,CO2,level of CO2 in the body
 13,ChestXray,having a chest x-ray
 14,Grunting ,grunting in infants
-15,reportingShowingLVH,report of having LVH
+15,LVHreport,report of having LVH
 16,LowerBodO2,level of oxygen in the lower body
 17,RightQuadO2,level of oxygen in the right up quadricep muscule
 18,CO2Report,CO2 levels in blood

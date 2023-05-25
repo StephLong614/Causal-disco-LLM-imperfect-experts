@@ -1,6 +1,6 @@
 node,var_name,var_description
-1,minvolset,minute ventilation = tidal volume *respiratory rate 
-2,ventmach,level of vent machine zero low normal high
+1,MINVOLSET,minute ventilation = tidal volume *respiratory rate 
+2,VENTMACH,level of vent machine zero low normal high
 3,disconnect,disconnection
 4,venttube,ventilation tube
 5,kinkedtube,kicked chest tube
@@ -13,17 +13,17 @@ node,var_name,var_description
 12,FIO2,fraction of inspired oxygen: concentration of oxygen in the gas mixture 
 13,minvol,minute volume 
 14,ventalv,alveolar ventilation
-15,anaphylaxis,anaphylaxis
+15,ANAPHYLAXIS,anaphylaxis
 16,pvsat,pulmonary artery oxygen saturation
 17,artCO2,arterial CO2
 18,TPR,total peripheral resistance
 19,insuffanesth,insufficient anesthesia 
 20,SaO2,oxygen saturation
 21,expCO2,expelled CO2
-22,lvfailure,left ventricular failure
+22,LVFAILURE,left ventricular failure
 23,hypovolemia,hypovolemia
 24,catechol,catecholamine
-25,history, previous history  of diagnosis yes or no
+25,HISTORY, previous history  of diagnosis yes or no
 26,lvedvolume,left ventricular end-diastolic volume
 27,strokevolume,stroke volume 
 28,errlowoutput,error low output

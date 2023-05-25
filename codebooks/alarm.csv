@@ -5,7 +5,7 @@ node,var_name,var_description
 4,venttube,ventilation tube
 5,kinkedtube,kicked chest tube
 6,intubation,"intubation - what type of intubation - normal, esophargeal, onesided"
-7,PULEMBOLUS,pulmonary embolusm 
+7,PULMEMBOLUS,pulmonary embolusm 
 8,ventlung,lung ventilation
 9,press,breathing pressure
 10,shunt,shunt - normal and high

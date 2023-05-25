@@ -1,6 +1,6 @@
 node,var_name,var_description
-1,age,age
-2,socioecon,socioeconomic status 4 levels poor middle uppermiddle wealthy
+1,Age,age
+2,SocioEcon,socioeconomic status 4 levels poor middle uppermiddle wealthy
 3,RiskAversion,levels of risk taking behaviour from cautious to psychopath
 4,goodstudent, is good student or not
 5,SeniorTrain,received senior training or not

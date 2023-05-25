@@ -2,7 +2,7 @@ node,var_name,var_description
 1,Age,age
 2,SocioEcon,socioeconomic status 4 levels poor middle uppermiddle wealthy
 3,RiskAversion,levels of risk taking behaviour from cautious to psychopath
-4,goodstudent, is good student or not
+4,GoodStudent, is good student or not
 5,SeniorTrain,received senior training or not
 6,DrivingSkill,driving skill
 7,MedCost,cost of medical treatment

@@ -1,6 +1,6 @@
 node,var_name,var_description
-1,BirthAsphyxia,lack of oxygen and blood flow to the brain
-2,Disease,disease that leads to blue babies
+1,BirthAsphyxia,lack of oxygen to the baby's blood during birth
+2,Disease,infant methemoglobinemia
 3,AgeAtDiseaseStart,age of infant at disease presentation
 4,LVH,thickening of the left ventricle
 5,DuctFlow,blood flow across the ductus arteriosus

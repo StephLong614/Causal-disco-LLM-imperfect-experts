@@ -1,15 +1,15 @@
 node,var_name,var_description
 1,age,age
-2,socioecon,socioeconomic status 
-3,RiskAversion,risk aversion
-4,goodstudent,good student
-5,SeniorTrain,received senior training
+2,socioecon,socioeconomic status 4 levels poor middle uppermiddle wealthy
+3,LevelRiskTakingBehaviour,levels of risk taking behaviour from cautious to psychopath
+4,goodstudent, is good student or not
+5,ExtraDrivingTrain,received senior training or not
 6,DrivingSkill,driving skill
 7,MedCost,cost of medical treatment
-8,OtherCar,other cars involved in the accident
-9,MakeModel,modelf of car
+8,OtherCar, were other cars involved in the accident yes or no
+9,CarType,type of car SportsCar Economy FamilySedan Luxury and SuperLuxury
 10,VehicleYear,year of vehicle
-11,HomeBase,neighbourhood type
+11,HomeBase,neighbourhood type Secure City Suburb and Rural
 12,AntiTheft,car has ABS
 13,DrivHist,driving history
 14,DrivQuality,driving quality

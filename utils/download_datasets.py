@@ -5,6 +5,8 @@ def download_datasets():
     [
         # Small
         "https://www.bnlearn.com/bnrepository/sachs/sachs.bif.gz",
+        "https://www.bnlearn.com/bnrepository/asia/asia.bif.gz",
+        "https://www.bnlearn.com/bnrepository/cancer/cancer.bif.gz",
         
         # Medium
         "https://www.bnlearn.com/bnrepository/alarm/alarm.bif.gz",

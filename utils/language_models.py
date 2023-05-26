@@ -3,6 +3,9 @@ import openai
 import pickle
 import scipy
 
+openai.api_key = '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'
+
+
 from utils.apis import pubmed_api
 
 
@@ -20,16 +23,22 @@ def get_lms_probs(undirected_edges, codebook):
       node_j = edge[1]
       long_name_node_i = codebook.loc[codebook['var_name']==node_i, 'var_description'].to_string(index=False)
       long_name_node_j = codebook.loc[codebook['var_name']==node_j, 'var_description'].to_string(index=False)
+
+      if 'Series' in long_name_node_i:
+        print(f"{node_i} is not defined")
+      if 'Series' in long_name_node_j:
+        print(f"{node_j} is not defined")
       
       options = f"""
-                Options:
-                (A) According to medical doctors, {long_name_node_i} increases the risk of {long_name_node_j}
-                (B) According to medical doctors, {long_name_node_j} increases the risk of {long_name_node_i}
+                Among these two options which one is the most likely true:
+                (A) {long_name_node_i} causes {long_name_node_j}
+                (B) {long_name_node_j} causes {long_name_node_i}
                 The answer is: 
                 """
       
-      log_scores = gpt3_scoring(options, options=['(A', '(B'], lock_token=' (')
-      scores = scipy.special.softmax(-log_scores)
+      log_scores = gpt3_scoring(options, options=['(A)', '(B)'], lock_token=' (')
+      scores = scipy.special.softmax(log_scores)
+      scores = np.clip(scores, 0.1, 0.9)
       
       gpt3_decision_probs[(node_i, node_j)] = scores[0]
       gpt3_decision_probs[(node_j, node_i)] = scores[1]
@@ -53,9 +62,9 @@ def calibrate(directed_edges, codebook):
       long_name_node_i = codebook.loc[codebook['var_name']==node_i, 'var_description'].to_string(index=False)
       long_name_node_j = codebook.loc[codebook['var_name']==node_j, 'var_description'].to_string(index=False)
       options = f"""
-                Options:
-                (A) According to medical doctors, {long_name_node_i} increases the risk of {long_name_node_j}
-                (B) According to medical doctors, {long_name_node_j} increases the risk of {long_name_node_i}
+                Among these two options which one is the most likely true:
+                (A) {long_name_node_i} causes {long_name_node_j}
+                (B) {long_name_node_j} causes {long_name_node_i}
                 The answer is: 
                 """
       

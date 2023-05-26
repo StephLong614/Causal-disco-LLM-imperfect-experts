@@ -23,7 +23,7 @@ from utils.language_models import get_lms_probs, calibrate
 parser = argparse.ArgumentParser(description='Description of your program.')
 
 # Add arguments
-parser.add_argument('--algo', default="greedy_mec", choices=["greedy_mec", "greedy_conf", "greedy_bic", "global_scoring", "PC", "blind"], help='What algorithm to use')
+parser.add_argument('--algo', default="greedy_conf", choices=["greedy_mec", "greedy_conf", "greedy_bic", "global_scoring", "PC", "blind"], help='What algorithm to use')
 parser.add_argument('--dataset', default="child", type=str, help='What dataset to use')
 parser.add_argument('--tabular', default=False, action="store_true", help='Use tabular expert, else use gpt3')
 parser.add_argument('--prior', default="mec", choices=["mec", "independent"])
@@ -31,7 +31,7 @@ parser.add_argument('--probability', default="posterior", choices=["posterior", 
 parser.add_argument('--pubmed-sources', type=int, help='How many PubMed sources to retrieve')
 
 parser.add_argument('--epsilon', default=0.05, type=float, help='algorithm error tolerance')
-parser.add_argument('-tol', '--tolerance', default=0.101, type=float, help='algorithm error tolerance')
+parser.add_argument('-tol', '--tolerance', default=0.1, type=float, help='algorithm error tolerance')
 
 parser.add_argument('--seed', type=int, default=20230515, help='random seed')
 parser.add_argument('--verbose', default=False, action="store_true", help='For debugging purposes')
@@ -46,7 +46,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     wandb.init(config=args,
-               project='causal discovery with LMs',
+               project='causal_disco_better_prompt_clip',
                mode=None if args.wandb else 'disabled'
                )
 
@@ -114,6 +114,7 @@ if __name__ == '__main__':
 
     print("\nTrue Orientations:", undirected_edges)
     print("\nOrientations given by the expert:", observations)
+    print(likelihoods)
     prior = prior_type(cpdag)
     model = NoisyExpert(prior, likelihoods)
 
@@ -144,6 +145,7 @@ if __name__ == '__main__':
     print('\nConfidence true DAG is in final MEC: %.3f' % p_correct)
     print("Final MEC's SHD: ", shd)
     print('MEC size: ', len(new_mec))
+    print('true-still-in-MEC: ', is_dag_in_mec(true_G, new_mec))
     wandb.log({'mec size': len(new_mec),
                'shd': shd,
                'prob-correct': p_correct,

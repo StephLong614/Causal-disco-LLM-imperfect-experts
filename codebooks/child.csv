@@ -1,10 +1,10 @@
 node,var_name,var_description
-1,BirthAsphyxia,lack of oxygen and blood flow to the brain
-2,Disease,disease that leads to blue babies
+1,BirthAsphyxia,lack of oxygen to the blood during the infant's birth
+2,Disease,infant methemoglobinemia
 3,Age,age of infant at disease presentation
 4,LVH,thickening of the left ventricle
 5,DuctFlow,blood flow across the ductus arteriosus
-6,CardiacMixing,the level when breathing oxygen depends on the degree of mixing in the blood
+6,CardiacMixing,mixing of oxygenated and deoxygenated blood
 7,LungParench,the state of the blood vessels in the lungs
 8,LungFlow,low blood flow in the lungs
 9,Sick,presence of an illness
@@ -16,6 +16,6 @@ node,var_name,var_description
 15,LVHreport,report of having LVH
 16,LowerBodO2,level of oxygen in the lower body
 17,RightQuadO2,level of oxygen in the right up quadricep muscule
-18,CO2Report,CO2 levels in blood
+18,CO2Report,a document reporting high level of CO2 levels in blood
 19,XrayReport,lung excessively filled with blood
 20,GruntingReport,report of infant grunting

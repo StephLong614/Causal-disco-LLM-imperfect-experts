@@ -1,29 +1,29 @@
 node,var_name,var_description
-1,minvolset,minute ventilation = tidal volume *respiratory rate 
-2,ventmach,vent machine
+1,MINVOLSET,the amount of time using a breathing machine
+2,VENTMACH,the intensity level of a breathing machine
 3,disconnect,disconnection
-4,venttube,ventilation tube
-5,kinkedtube,kicked chest tube
-6,intubation,"intubation - what type of intubation - normal, esophargeal, onesided"
-7,pulembolus,pulmonary embolusm 
+4,venttube,breathing tube
+5,kinkedtube,kinked chest tube
+6,intubation,intubation
+7,PULMEMBOLUS,sudden blockage in the pulmonary arteries
 8,ventlung,lung ventilation
 9,press,breathing pressure
 10,shunt,shunt - normal and high
 11,PAP,pulmonary artery pressure 
-12,FIO2,fraction of inspired oxygen: concentration of oxygen in the gas mixture 
+12,FIO2,high concentration of oxygen in the gas mixture 
 13,minvol,minute volume 
 14,ventalv,alveolar ventilation
-15,anaphylaxis,anaphylaxis
+15,ANAPHYLAXIS,anaphylaxis
 16,pvsat,pulmonary artery oxygen saturation
 17,artCO2,arterial CO2
 18,TPR,total peripheral resistance
 19,insuffanesth,insufficient anesthesia 
 20,SaO2,oxygen saturation
 21,expCO2,expelled CO2
-22,lvfailure,left ventricular failure
+22,LVFAILURE,left ventricular failure
 23,hypovolemia,hypovolemia
 24,catechol,catecholamine
-25,history,medical history 
+25,HISTORY,previous medical history
 26,lvedvolume,left ventricular end-diastolic volume
 27,strokevolume,stroke volume 
 28,errlowoutput,error low output

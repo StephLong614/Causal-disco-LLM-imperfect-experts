@@ -3,9 +3,6 @@ import openai
 import pickle
 import scipy
 
-from utils.apis import pubmed_api
-
-
 def get_lms_probs(undirected_edges, codebook):
   """
   return: dictionary of tuple and their likelihood of being wrong by the LM

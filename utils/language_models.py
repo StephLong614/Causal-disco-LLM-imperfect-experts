@@ -3,9 +3,6 @@ import openai
 import pickle
 import scipy
 
-openai.api_key = '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'
-
-
 from utils.apis import pubmed_api
 
 

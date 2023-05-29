@@ -28,7 +28,7 @@ parser.add_argument('--dataset', default="child", type=str, help='What dataset t
 parser.add_argument('--tabular', default=False, action="store_true", help='Use tabular expert, else use gpt3')
 parser.add_argument('--prior', default="mec", choices=["mec", "independent"])
 parser.add_argument('--probability', default="posterior", choices=["posterior", "prior", "likelihood"])
-parser.add_argument('--pubmed-sources', type=int, help='How many PubMed sources to retrieve')
+parser.add_argument('--wandb-project', default='wandb_project', type=str, help='Name of your wandb project')
 
 parser.add_argument('--epsilon', default=0.05, type=float, help='algorithm error tolerance')
 parser.add_argument('-tol', '--tolerance', default=0.1, type=float, help='algorithm error tolerance')
@@ -38,7 +38,6 @@ parser.add_argument('--verbose', default=False, action="store_true", help='For d
 parser.add_argument('--wandb', default=False, action="store_true", help='to log on wandb')
 
 def blindly_follow_expert(observed_arcs, model, cpdag, *args, **kwargs):
-
     return [list(observed_arcs) + list(cpdag.arcs)], observed_arcs, model(observed_arcs, observed_arcs)
 
 if __name__ == '__main__':
@@ -46,7 +45,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     wandb.init(config=args,
-               project='causal_disco_better_prompt_clip',
+               project=args.wandb_project,
                mode=None if args.wandb else 'disabled'
                )
 

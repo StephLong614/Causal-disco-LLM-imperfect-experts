@@ -18,7 +18,7 @@ from utils.data_generation import generate_dataset
 from utils.plotting import plot_heatmap
 from utils.dag_utils import get_undirected_edges, is_dag_in_mec, get_mec
 from utils.metrics import get_mec_shd
-from utils.language_models import get_lms_probs, calibrate
+from utils.language_models import get_lms_probs, temperature_scaling
 
 parser = argparse.ArgumentParser(description='Description of your program.')
 
@@ -29,6 +29,7 @@ parser.add_argument('--tabular', default=False, action="store_true", help='Use t
 parser.add_argument('--prior', default="mec", choices=["mec", "independent"])
 parser.add_argument('--probability', default="posterior", choices=["posterior", "prior", "likelihood"])
 parser.add_argument('--wandb-project', default='wandb_project', type=str, help='Name of your wandb project')
+parser.add_argument('--calibrate', default=False, action="store_true", help='Calibrate gpt3')
 
 parser.add_argument('--epsilon', default=0.05, type=float, help='algorithm error tolerance')
 parser.add_argument('-tol', '--tolerance', default=0.1, type=float, help='algorithm error tolerance')
@@ -94,9 +95,6 @@ if __name__ == '__main__':
     #plot_heatmap(nx.to_numpy_array(true_G), lbls=true_G.nodes(), dataset=args.dataset, name='true_g.pdf')
     undirected_edges = get_undirected_edges(true_G, verbose=args.verbose)
 
-    #lm_error = calibrate(directed_edges, codebook) 
-    #print('Calibration Error: ', lm_error)
-
     if args.tabular:
         oracle = EpsilonOracle(undirected_edges, epsilon=args.epsilon)
         observations = oracle.decide_all()
@@ -108,8 +106,14 @@ if __name__ == '__main__':
         except:
             print('cannot load the codebook')
             codebook = None
+
+        if args.calibrate:
+            tmp_scale, eps = temperature_scaling(cpdag.arcs, codebook)
+            print("LLM has %.3f error rate" % eps)
+        else:
+            tmp_scale = 1.
     
-        likelihoods, observations = get_lms_probs(undirected_edges, codebook)
+        likelihoods, observations = get_lms_probs(undirected_edges, codebook, tmp_scale)
 
     print("\nTrue Orientations:", undirected_edges)
     print("\nOrientations given by the expert:", observations)

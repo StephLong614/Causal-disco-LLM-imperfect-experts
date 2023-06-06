@@ -7,14 +7,29 @@ from scipy.optimize import fsolve
 
 PROMPT_TEMPLATE = """
   Among these two options which one is the most likely true:
-  (A) {} causes {}
-  (B) {} causes {}
+  (A) {0} causes {1}
+  (B) {1} causes {0}
   The answer is: 
 """
 
 OPTIONS = ['(A)', '(B)']
 
 LOCK_TOKEN = ' ('
+
+def get_prompt(edge, codebook):
+
+  node_i, node_j = edge
+  long_name_node_i = codebook.loc[codebook['var_name']==node_i, 'var_description'].to_string(index=False)
+  long_name_node_j = codebook.loc[codebook['var_name']==node_j, 'var_description'].to_string(index=False)
+
+  if 'Series' in long_name_node_i:
+    print(f"{node_i} is not defined")
+  if 'Series' in long_name_node_j:
+    print(f"{node_j} is not defined")
+  
+  options = PROMPT_TEMPLATE.format(long_name_node_i, long_name_node_j)
+
+  return options
 
 def get_lms_probs(undirected_edges, codebook, tmp_scaling=1):
   """
@@ -26,18 +41,9 @@ def get_lms_probs(undirected_edges, codebook, tmp_scaling=1):
   decisions = []
 
   for edge in undirected_edges:
-      node_i = edge[0]
-      node_j = edge[1]
-      long_name_node_i = codebook.loc[codebook['var_name']==node_i, 'var_description'].to_string(index=False)
-      long_name_node_j = codebook.loc[codebook['var_name']==node_j, 'var_description'].to_string(index=False)
+      
+      options = get_prompt(edge, codebook)
 
-      if 'Series' in long_name_node_i:
-        print(f"{node_i} is not defined")
-      if 'Series' in long_name_node_j:
-        print(f"{node_j} is not defined")
-      
-      options = PROMPT_TEMPLATE.format(long_name_node_i, long_name_node_j, long_name_node_j, long_name_node_i)
-      
       log_scores = gpt3_scoring(options, options=OPTIONS, lock_token=LOCK_TOKEN)
       scores = softmax(log_scores / tmp_scaling)
       
@@ -57,18 +63,14 @@ def temperature_scaling(directed_edges, codebook):
 
   for edge in directed_edges:
       # node_i -> node_j 
-      node_i = edge[0]
-      node_j = edge[1]
-      long_name_node_i = codebook.loc[codebook['var_name']==node_i, 'var_description'].to_string(index=False)
-      long_name_node_j = codebook.loc[codebook['var_name']==node_j, 'var_description'].to_string(index=False)
-      
-      options = PROMPT_TEMPLATE.format(long_name_node_i, long_name_node_j, long_name_node_j, long_name_node_i)
-      
+      options = get_prompt(edge, codebook)
+
       log_scores = gpt3_scoring(options, options=OPTIONS, lock_token=LOCK_TOKEN)
 
       if log_scores[0] < log_scores[1]:
         num_errs += 1
         err_scores.append(log_scores[1])
+        print(edge)
       else:
         err_scores.append(log_scores[0]) 
 

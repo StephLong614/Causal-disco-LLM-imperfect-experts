@@ -42,18 +42,18 @@ def get_lms_probs(undirected_edges, codebook, tmp_scaling=1):
 
   for edge in undirected_edges:
       
-      options = get_prompt(edge, codebook)
+      prompt = get_prompt(edge, codebook)
 
-      log_scores = gpt3_scoring(options, options=OPTIONS, lock_token=LOCK_TOKEN)
+      log_scores = gpt3_scoring(prompt, options=OPTIONS, lock_token=LOCK_TOKEN)
       scores = softmax(log_scores / tmp_scaling)
       
-      gpt3_decision_probs[(node_i, node_j)] = scores[0]
-      gpt3_decision_probs[(node_j, node_i)] = scores[1]
+      gpt3_decision_probs[(edge[0], edge[1])] = scores[0]
+      gpt3_decision_probs[(edge[1], edge[0])] = scores[1]
 
       if scores[0] > scores[1]:
-        decisions.append((node_i, node_j))
+        decisions.append((edge[0], edge[1]))
       else:
-        decisions.append((node_j, node_i))
+        decisions.append((edge[1], edge[0]))
 
   return gpt3_decision_probs, decisions
 

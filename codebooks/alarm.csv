@@ -25,7 +25,7 @@ node,var_name,var_description
 24,CATECHOL,catecholamine
 25,HISTORY,previous medical history
 26,LVEDVOLUME,left ventricular end-diastolic volume
-27,strokevolume,stroke volume 
+27,STROKEVOLUME,stroke volume 
 28,ERRLOWOUTPUT,error low output
 29,HR,heart rate
 30,ERRCAUTER,error cauter

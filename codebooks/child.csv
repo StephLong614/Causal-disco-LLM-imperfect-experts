@@ -17,5 +17,5 @@ node,var_name,var_description
 16,LowerBodyO2,level of oxygen in the lower body
 17,RUQO2,level of oxygen in the right upper quadricep muscule
 18,CO2Report,a document reporting high level of CO2 levels in blood
-19,XrayReport,lung excessively filled with blood
+19,XrayReport,Xray reports that lungs are excessively filled with blood
 20,GruntingReport,report of infant grunting

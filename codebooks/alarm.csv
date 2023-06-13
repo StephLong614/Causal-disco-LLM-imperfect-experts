@@ -1,4 +1,4 @@
-node,var_name,var_description
+nnode,var_name,var_description
 1,MINVOLSET,the amount of time using a breathing machine
 2,VENTMACH,the intensity level of a breathing machine
 3,DISCONNECT,disconnection
@@ -14,15 +14,15 @@ node,var_name,var_description
 13,MINVOL,minute volume 
 14,VENTALV,alveolar ventilation
 15,ANAPHYLAXIS,anaphylaxis
-16,PVSAT,pulmonary artery oxygen saturation
-17,ARTCO2,arterial CO2
-18,TPR,total peripheral resistance
+16,PVSAT,pulmonary venous oxygen saturation
+17,ARTCO2,arterial CO2 - marker of sufficient alveolar ventilation
+18,TPR,total peripheral resistance = mean arterial pressure divided by cardiac output
 19,INSUFFANESTH,insufficient anesthesia 
-20,SAO2,oxygen saturation
+20,SAO2, arterial oxygen saturation
 21,EXPCO2,expelled CO2
 22,LVFAILURE,left ventricular failure
 23,HYPOVOLEMIA,hypovolemia
-24,CATECHOL,catecholamine
+24,CATECHOL,catecholamines increase heart rate
 25,HISTORY,previous medical history
 26,LVEDVOLUME,left ventricular end-diastolic volume
 27,STROKEVOLUME,stroke volume 
@@ -31,7 +31,7 @@ node,var_name,var_description
 30,ERRCAUTER,error cauter
 31,PCWP,pulmonary capillary wedge pressure
 32,CVP,central venous pressure
-33,CO,cardiac output
+33,CO,cardiac output = stroke volume x heart rate
 34,HRBP,heart rate blood pressure
 35,HRSAT,oxygen saturation
 36,HREKG,Heart rate displayed on EKG monitor

@@ -1,9 +1,38 @@
 import numpy as np
 import openai
 import pickle
-import scipy
 
-def get_lms_probs(undirected_edges, codebook, engine):
+
+from scipy.special import softmax
+from scipy.optimize import fsolve
+
+PROMPT_TEMPLATE = """
+  Among these two options which one is the most likely true:
+  (A) {0} causes {1}
+  (B) {1} causes {0}
+  The answer is: 
+"""
+
+OPTIONS = ['(A)', '(B)']
+
+LOCK_TOKEN = ' ('
+
+def get_prompt(edge, codebook):
+
+  node_i, node_j = edge
+  long_name_node_i = codebook.loc[codebook['var_name']==node_i, 'var_description'].to_string(index=False)
+  long_name_node_j = codebook.loc[codebook['var_name']==node_j, 'var_description'].to_string(index=False)
+
+  if 'Series' in long_name_node_i:
+    print(f"{node_i} is not defined")
+  if 'Series' in long_name_node_j:
+    print(f"{node_j} is not defined")
+  
+  options = PROMPT_TEMPLATE.format(long_name_node_i, long_name_node_j)
+
+  return options
+
+def get_lms_probs(undirected_edges, codebook, tmp_scaling=1, engine='davinci-002'):
   """
   return: dictionary of tuple and their likelihood of being wrong by the LM
   example {('Age', 'Disease'): 0.05, ...}
@@ -13,67 +42,49 @@ def get_lms_probs(undirected_edges, codebook, engine):
   decisions = []
 
   for edge in undirected_edges:
-      node_i = edge[0]
-      node_j = edge[1]
-      long_name_node_i = codebook.loc[codebook['var_name']==node_i, 'var_description'].to_string(index=False)
-      long_name_node_j = codebook.loc[codebook['var_name']==node_j, 'var_description'].to_string(index=False)
 
-      if 'Series' in long_name_node_i:
-        print(f"{node_i} is not defined")
-      if 'Series' in long_name_node_j:
-        print(f"{node_j} is not defined")
+      prompt = get_prompt(edge, codebook)
+
+      log_scores = gpt3_scoring(prompt, options=OPTIONS, lock_token=LOCK_TOKEN, engine=engine)
+      scores = softmax(log_scores / tmp_scaling)
+
       
-      options = f"""
-                Among these two options which one is the most likely true:
-                (A) {long_name_node_i} causes {long_name_node_j}
-                (B) {long_name_node_j} causes {long_name_node_i}
-                The answer is: 
-                """
-      
-      log_scores = gpt3_scoring(options, options=['(A)', '(B)'], lock_token=' (', engine=engine)
-      scores = scipy.special.softmax(log_scores)
-      #TODO: if we want clipping
-      #scores = np.clip(scores, 0.1, 0.9)
-      
-      gpt3_decision_probs[(node_i, node_j)] = scores[0]
-      gpt3_decision_probs[(node_j, node_i)] = scores[1]
+      gpt3_decision_probs[(edge[0], edge[1])] = scores[0]
+      gpt3_decision_probs[(edge[1], edge[0])] = scores[1]
 
       if scores[0] > scores[1]:
-        decisions.append((node_i, node_j))
+        decisions.append((edge[0], edge[1]))
       else:
-        decisions.append((node_j, node_i))
+        decisions.append((edge[1], edge[0]))
 
   return gpt3_decision_probs, decisions
 
-
-def calibrate(directed_edges, codebook):
-  correct_answer = 0
-  denom = 0
+def temperature_scaling(directed_edges, codebook):
+  err_scores = []
+  num_errs = 0
 
   for edge in directed_edges:
       # node_i -> node_j 
-      node_i = edge[0]
-      node_j = edge[1]
-      long_name_node_i = codebook.loc[codebook['var_name']==node_i, 'var_description'].to_string(index=False)
-      long_name_node_j = codebook.loc[codebook['var_name']==node_j, 'var_description'].to_string(index=False)
-      options = f"""
-                Among these two options which one is the most likely true:
-                (A) {long_name_node_i} causes {long_name_node_j}
-                (B) {long_name_node_j} causes {long_name_node_i}
-                The answer is: 
-                """
-      
-      log_scores = gpt3_scoring(options, options=['(A)', '(B)'], lock_token=' (')
-      scores = scipy.special.softmax(log_scores)
-      if scores[0] > scores[1]:
-        correct_answer += 1
-      else:
-        correct_answer += 0
-      
-      denom += 1
+      options = get_prompt(edge, codebook)
 
-  estimated_error = 1 - (correct_answer/denom)
-  return estimated_error
+      log_scores = gpt3_scoring(options, options=OPTIONS, lock_token=LOCK_TOKEN)
+
+      if log_scores[0] < log_scores[1]:
+        num_errs += 1
+        err_scores.append(log_scores[1])
+        print(edge)
+      else:
+        err_scores.append(log_scores[0]) 
+
+  estimated_error = num_errs / len(directed_edges)
+  err_scores = np.array(err_scores)
+
+  equation = lambda t: np.average(np.exp(err_scores / t) / (np.exp(err_scores / t) + np.exp((1 - err_scores) / t))) - estimated_error
+
+  temperature = fsolve(equation, 1.)
+  # print(np.average(np.exp(err_scores / temperature) / (np.exp(err_scores / temperature) + np.exp((1 - err_scores) / temperature))))
+
+  return float(temperature), estimated_error
 
 
 def gpt3_call(engine="text-ada-001", prompt="", max_tokens=128, temperature=0, 
@@ -134,5 +145,5 @@ if __name__ == '__main__':
             The answer is: 
             """
   log_scores = gpt3_scoring(options, options=['(A)', '(B)'], lock_token=' (')
-  scores = scipy.special.softmax(log_scores)
+  scores = softmax(log_scores)
   print(scores)

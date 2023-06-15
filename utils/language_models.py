@@ -59,7 +59,7 @@ def get_lms_probs(undirected_edges, codebook, tmp_scaling=1, engine='davinci-002
 
   return gpt3_decision_probs, decisions
 
-def temperature_scaling(directed_edges, codebook):
+def temperature_scaling(directed_edges, codebook, engine):
   err_scores = []
   num_errs = 0
 
@@ -67,7 +67,7 @@ def temperature_scaling(directed_edges, codebook):
       # node_i -> node_j 
       options = get_prompt(edge, codebook)
 
-      log_scores = gpt3_scoring(options, options=OPTIONS, lock_token=LOCK_TOKEN)
+      log_scores = gpt3_scoring(options, options=OPTIONS, lock_token=LOCK_TOKEN, engine=engine)
 
       if log_scores[0] < log_scores[1]:
         num_errs += 1
@@ -82,7 +82,7 @@ def temperature_scaling(directed_edges, codebook):
   equation = lambda t: np.average(np.exp(err_scores / t) / (np.exp(err_scores / t) + np.exp((1 - err_scores) / t))) - estimated_error
 
   temperature = fsolve(equation, 1.)
-  # print(np.average(np.exp(err_scores / temperature) / (np.exp(err_scores / temperature) + np.exp((1 - err_scores) / temperature))))
+  print(np.average(np.exp(err_scores / temperature) / (np.exp(err_scores / temperature) + np.exp((1 - err_scores) / temperature))))
 
   return float(temperature), estimated_error
 

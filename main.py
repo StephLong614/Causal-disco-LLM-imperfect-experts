@@ -111,7 +111,7 @@ if __name__ == '__main__':
             codebook = None
 
         if args.calibrate:
-            tmp_scale, eps = temperature_scaling(cpdag.arcs, codebook)
+            tmp_scale, eps = temperature_scaling(cpdag.arcs, codebook, engine=args.llm_engine)
             print("LLM has %.3f error rate" % eps)
         else:
             tmp_scale = 1.

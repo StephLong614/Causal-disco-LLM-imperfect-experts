@@ -28,7 +28,8 @@ parser.add_argument('--dataset', default="child", type=str, help='What dataset t
 parser.add_argument('--tabular', default=False, action="store_true", help='Use tabular expert, else use gpt3')
 parser.add_argument('--prior', default="mec", choices=["mec", "independent"])
 parser.add_argument('--probability', default="posterior", choices=["posterior", "prior", "likelihood"])
-parser.add_argument('--wandb-project', default='wandb_project', type=str, help='Name of your wandb project')
+parser.add_argument('--wandb-project', default='no_clipping_epsilon_expert', type=str, help='Name of your wandb project')
+parser.add_argument('--llm-engine', default='text-davinci-002')
 
 parser.add_argument('--epsilon', default=0.05, type=float, help='algorithm error tolerance')
 parser.add_argument('-tol', '--tolerance', default=0.1, type=float, help='algorithm error tolerance')
@@ -109,7 +110,7 @@ if __name__ == '__main__':
             print('cannot load the codebook')
             codebook = None
     
-        likelihoods, observations = get_lms_probs(undirected_edges, codebook)
+        likelihoods, observations = get_lms_probs(undirected_edges, codebook, engine=args.llm_engine)
 
     print("\nTrue Orientations:", undirected_edges)
     print("\nOrientations given by the expert:", observations)

@@ -1,28 +1,28 @@
 node,var_name,var_description
 1,Age,age
 2,SocioEcon,socioeconomic status
-3,RiskAversion, level of risk aversion from cautious and normal to psychopath
+3,RiskAversion,being risk averse
 4,GoodStudent,being a good student driver
 5,SeniorTrain,received additional driving training 
-6,DrivingSkill,driving skill from substandard to expert
-7,MedCost,cost of medical treatments as result of car accident 
-8,OtherCar,other car is involved in the accident
-9,MakeModel, type of car - sports car economy family sedan luxury superluxury
-10,VehicleYear, age of vehicle from current to older
+6,DrivingSkill,driving skill
+7,MedCost,cost of medical treatment
+8,OtherCar,being involved with other cars in the accident
+9,MakeModel,owning a sport car 
+10,VehicleYear,year of vehicle
 11,HomeBase,neighbourhood type
-12,AntiTheft,car has anti-theft or not
-13,DrivHist,history of driving from none to a lot
-14,DrivQuality,driving quality from poor to excellent
+12,AntiTheft,car has anti-theft
+13,DrivHist,driving history
+14,DrivQuality,driving quality
 15,Airbag,airbag
-16,Antilock, car has anti-lock braking system or not 
-17,RuggedAuto,ruggedness of the car from fragile to tank
-18,CarValue,value of the car from thousands to million
-19,Mileage,how much mileage is on the car from low to high
-20,Accident,severity of the car accident from zero to severe
-21,Cushioning,quality of cushioning in car from poor to excellent
-22,Theft, car was stolen true or false
+16,Antilock,anti-lock
+17,RuggedAuto,ruggedness of the car
+18,CarValue,value of the car
+19,Mileage,how much mileage is on the car
+20,Accident,severity of the accident
+21,Cushioning,quality of cushioning in car
+22,Theft,theft occurred on the car
 23,ILiCost,inspection cost
-24,OtherCarCost,cost of the other cars involved in the accident
-25,ThisCarDam,damage to the car from none to severe
+24,OtherCarCost,cost of the other cars
+25,ThisCarDam,damage to the car
 26,ThisCarCost,costs for the insured car
-27,PropCost,ratio of the cost for the two cars involved in the accident
+27,PropCost,ratio of the cost for the two cars 

@@ -1,38 +1,38 @@
-nnode,var_name,var_description
+node,var_name,var_description
 1,MINVOLSET,the amount of time using a breathing machine
-2,VENTMACH,the intensity level of a breathing machine from zero to high
-3,DISCONNECT,disconnection
-4,VENTTUBE,breathing tube
-5,KINKEDTUBE,kinked intubation tube
-6,INTUBATION,insertion of tube through mouth or nose down trachae to support breathing
+2,VENTMACH,the intensity level of a breathing machine
+3,disconnect,disconnection
+4,venttube,breathing tube
+5,kinkedtube,kinked chest tube
+6,intubation,intubation
 7,PULMEMBOLUS,sudden blockage in the pulmonary arteries
-8,VENTLUNG,lung ventilation
-9,PRESS,breathing pressure from zero to high
-10,SHUNT,shunt - normal and high
+8,ventlung,lung ventilation
+9,press,breathing pressure
+10,shunt,shunt - normal and high
 11,PAP,pulmonary artery pressure 
 12,FIO2,high concentration of oxygen in the gas mixture 
-13,MINVOL,minimum volume 
-14,VENTALV,alveolar ventilation
+13,minvol,minute volume 
+14,ventalv,alveolar ventilation
 15,ANAPHYLAXIS,anaphylaxis
-16,PVSAT,pulmonary venous oxygen saturation aka oxygen content of blood returning to right ventricle 
-17,ARTCO2,arterial CO2 aka marker of sufficient alveolar ventilation
-18,TPR,total peripheral resistance = mean arterial pressure divided by cardiac output
-19,INSUFFANESTH,insufficient 
-20,SAO2, arterial oxygen saturation
-21,EXPCO2,expelled CO2
-22,LVFAILURE,left ventricle of heart no longer pumps enough blood around the body
-23,HYPOVOLEMIA, abnormally low levels of extracellular fluids in the body
-24,CATECHOL,catecholamines increase heart rate
+16,pvsat,pulmonary artery oxygen saturation
+17,artCO2,arterial CO2
+18,TPR,total peripheral resistance
+19,insuffanesth,insufficient anesthesia 
+20,SaO2,oxygen saturation
+21,expCO2,expelled CO2
+22,LVFAILURE,left ventricular failure
+23,hypovolemia,hypovolemia
+24,catechol,catecholamine
 25,HISTORY,previous medical history
-26,LVEDVOLUME,left ventricular end-diastolic volume aka the amount of blood in the left ventricular before the heart contracts
-27,STROKEVOLUME, volume of blood pumped out of left ventricle of heart during cardiac contraction
-28,ERRLOWOUTPUT,error low output
+26,lvedvolume,left ventricular end-diastolic volume
+27,strokevolume,stroke volume 
+28,errlowoutput,error low output
 29,HR,heart rate
-30,ERRCAUTER,error cauter
-31,PCWP,pulmonary capillary wedge pressure aka estimate of LVEDVOLUME
-32,CVP,central venous pressure aka right ventricular end-diastolic pressure which parallels left ventricular end-diastolic pressure with normal left ventricular function
-33,CO,cardiac output = stroke volume x heart rate
-34,HRBP,heart rate blood pressure from low to high
-35,HRSAT,oxygen saturation
-36,HREKG,Heart rate displayed on EKG monitor from low to high
+30,errcauter,error cauter
+31,PCWP,pulmonary capillary wedge pressure
+32,CVP,central venous pressure
+33,CO,cardiac output
+34,HRBP,heart rate blood pressure
+35,HRsat,oxygen saturation
+36,HREKG,Heart rate displayed on EKG monitor
 37,BP,blood pressure

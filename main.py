@@ -29,7 +29,7 @@ parser.add_argument('--tabular', default=False, action="store_true", help='Use t
 parser.add_argument('--prior', default="mec", choices=["mec", "independent"])
 parser.add_argument('--probability', default="posterior", choices=["posterior", "prior", "likelihood"])
 
-parser.add_argument('--wandb-project', default='no_clipping_epsilon_expert', type=str, help='Name of your wandb project')
+parser.add_argument('--wandb-project', default='noisy expert', type=str, help='Name of your wandb project')
 parser.add_argument('--llm-engine', default='text-davinci-002')
 parser.add_argument('--calibrate', default=False, action="store_true", help='Calibrate gpt3')
 

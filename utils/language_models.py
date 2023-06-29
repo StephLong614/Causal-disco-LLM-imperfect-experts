@@ -1,21 +1,23 @@
 import numpy as np
 import openai
 import pickle
-
+import random
 
 from scipy.special import softmax
 from scipy.optimize import fsolve
 
 PROMPT_TEMPLATE = """
   Among these two options which one is the most likely true:
-  (A) {0} causes {1}
-  (B) {1} causes {0}
+  (A) {0} {2} {1}
+  (B) {1} {2} {0}
   The answer is: 
 """
 
 OPTIONS = ['(A)', '(B)']
 
 LOCK_TOKEN = ' ('
+
+VERBS = ["provokes", " triggers","causes", "leads to", "induces", "results in", "brings about", "yields", "generates", "initiates", "produces", "stimulates", "instigates", "fosters", "engenders", "promotes", "catalyzes", "gives rise to", "spurs", "sparks"]
 
 def get_prompt(edge, codebook):
 
@@ -28,7 +30,8 @@ def get_prompt(edge, codebook):
   if 'Series' in long_name_node_j:
     print(f"{node_j} is not defined")
   
-  options = PROMPT_TEMPLATE.format(long_name_node_i, long_name_node_j)
+  verb = random.choice(VERBS)
+  options = PROMPT_TEMPLATE.format(long_name_node_i, long_name_node_j, verb)
 
   return options
 

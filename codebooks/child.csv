@@ -8,14 +8,14 @@ node,var_name,var_description
 7,LungParench,the state of the blood vessels in the lungs
 8,LungFlow,low blood flow in the lungs
 9,Sick,presence of an illness
-10,HypDistrib, hypoxia distribution low oxygen areas equally distributed around the body
-11,HypoxiaInO2,hypoxia when breathing oxygen
+10,HypoxiaDistribution,low oxygen areas equally distributed around the body
+11,O2Hypoxia,hypoxia when breathing oxygen
 12,CO2,level of CO2 in the body
 13,ChestXray,having a chest x-ray
-14,Grunting,grunting in infants
+14,Grunting ,grunting in infants
 15,LVHreport,report of having LVH
-16,LowerBodyO2,level of oxygen in the lower body
-17,RUQO2,level of oxygen in the right upper quadricep muscule
+16,LowerBodO2,level of oxygen in the lower body
+17,RightQuadO2,level of oxygen in the right up quadricep muscule
 18,CO2Report,a document reporting high level of CO2 levels in blood
-19,XrayReport,Xray reports that lungs are excessively filled with blood
+19,XrayReport,lung excessively filled with blood
 20,GruntingReport,report of infant grunting

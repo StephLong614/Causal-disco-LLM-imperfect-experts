@@ -1,20 +1,23 @@
 import numpy as np
 import openai
 import pickle
+import random
 
 from scipy.special import softmax
 from scipy.optimize import fsolve
 
 PROMPT_TEMPLATE = """
   Among these two options which one is the most likely true:
-  (A) {0} causes {1}
-  (B) {1} causes {0}
+  (A) {0} {2} {1}
+  (B) {1} {2} {0}
   The answer is: 
 """
 
 OPTIONS = ['(A)', '(B)']
 
 LOCK_TOKEN = ' ('
+
+VERBS = ["provokes", " triggers","causes", "leads to", "induces", "results in", "brings about", "yields", "generates", "initiates", "produces", "stimulates", "instigates", "fosters", "engenders", "promotes", "catalyzes", "gives rise to", "spurs", "sparks"]
 
 def get_prompt(edge, codebook):
 
@@ -27,11 +30,12 @@ def get_prompt(edge, codebook):
   if 'Series' in long_name_node_j:
     print(f"{node_j} is not defined")
   
-  options = PROMPT_TEMPLATE.format(long_name_node_i, long_name_node_j)
+  verb = random.choice(VERBS)
+  options = PROMPT_TEMPLATE.format(long_name_node_i, long_name_node_j, verb)
 
   return options
 
-def get_lms_probs(undirected_edges, codebook, tmp_scaling=1):
+def get_lms_probs(undirected_edges, codebook, tmp_scaling=1, engine='davinci-002'):
   """
   return: dictionary of tuple and their likelihood of being wrong by the LM
   example {('Age', 'Disease'): 0.05, ...}
@@ -41,11 +45,12 @@ def get_lms_probs(undirected_edges, codebook, tmp_scaling=1):
   decisions = []
 
   for edge in undirected_edges:
-      
+
       prompt = get_prompt(edge, codebook)
 
-      log_scores = gpt3_scoring(prompt, options=OPTIONS, lock_token=LOCK_TOKEN)
+      log_scores = gpt3_scoring(prompt, options=OPTIONS, lock_token=LOCK_TOKEN, engine=engine)
       scores = softmax(log_scores / tmp_scaling)
+
       
       gpt3_decision_probs[(edge[0], edge[1])] = scores[0]
       gpt3_decision_probs[(edge[1], edge[0])] = scores[1]
@@ -57,7 +62,7 @@ def get_lms_probs(undirected_edges, codebook, tmp_scaling=1):
 
   return gpt3_decision_probs, decisions
 
-def temperature_scaling(directed_edges, codebook):
+def temperature_scaling(directed_edges, codebook, engine):
   err_scores = []
   num_errs = 0
 
@@ -65,7 +70,7 @@ def temperature_scaling(directed_edges, codebook):
       # node_i -> node_j 
       options = get_prompt(edge, codebook)
 
-      log_scores = gpt3_scoring(options, options=OPTIONS, lock_token=LOCK_TOKEN)
+      log_scores = gpt3_scoring(options, options=OPTIONS, lock_token=LOCK_TOKEN, engine=engine)
 
       if log_scores[0] < log_scores[1]:
         num_errs += 1
@@ -80,16 +85,17 @@ def temperature_scaling(directed_edges, codebook):
   equation = lambda t: np.average(np.exp(err_scores / t) / (np.exp(err_scores / t) + np.exp((1 - err_scores) / t))) - estimated_error
 
   temperature = fsolve(equation, 1.)
-  # print(np.average(np.exp(err_scores / temperature) / (np.exp(err_scores / temperature) + np.exp((1 - err_scores) / temperature))))
+  print(np.average(np.exp(err_scores / temperature) / (np.exp(err_scores / temperature) + np.exp((1 - err_scores) / temperature))))
 
   return float(temperature), estimated_error
 
 
 def gpt3_call(engine="text-ada-001", prompt="", max_tokens=128, temperature=0, 
-              logprobs=1, echo=False):
+              logprobs=1, echo=False, cache_file='llm_cache.pickle'):
+  cache_file = engine + '_llm_cache.pickle'
   LLM_CACHE = {}
   try:
-      with open('llm_cache.pickle', 'rb') as f:
+      with open(cache_file, 'rb') as f:
           LLM_CACHE = pickle.load(f)
   except:
       pass
@@ -108,15 +114,15 @@ def gpt3_call(engine="text-ada-001", prompt="", max_tokens=128, temperature=0,
                                         logprobs=logprobs,
                                         echo=echo)
     LLM_CACHE[id] = response
-    with open('llm_cache.pickle', 'wb') as f:
+    with open(cache_file, 'wb') as f:
       pickle.dump(LLM_CACHE, f)
   return response
 
 
-def gpt3_scoring(prompt, options, engine="text-davinci-003", verbose=False, n_tokens_score=9999999999, lock_token=None): 
+def gpt3_scoring(prompt, options, engine="text-davinci-002", verbose=False, n_tokens_score=9999999999, lock_token=None, ): 
     verbose and print("Scoring", len(options), "options") 
     gpt3_prompt_options = [f"{prompt}{o}" for o in options] 
-    response = gpt3_call(engine=engine, prompt=gpt3_prompt_options, max_tokens=0, logprobs=1, temperature=0, echo=True,) 
+    response = gpt3_call(engine=engine, prompt=gpt3_prompt_options, max_tokens=0, logprobs=1, temperature=0, echo=True, ) 
     scores = [] 
     for option, choice in zip(options, response["choices"]): 
         if lock_token is not None: 

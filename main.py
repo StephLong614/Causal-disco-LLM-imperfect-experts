@@ -15,7 +15,6 @@ from models.noisy_expert import NoisyExpert
 from models.oracles import EpsilonOracle
 
 from utils.data_generation import generate_dataset
-from utils.plotting import plot_heatmap
 from utils.dag_utils import get_undirected_edges, is_dag_in_mec, get_mec
 from utils.metrics import get_mec_shd
 from utils.language_models import get_lms_probs, temperature_scaling
@@ -28,8 +27,11 @@ parser.add_argument('--dataset', default="child", type=str, help='What dataset t
 parser.add_argument('--tabular', default=False, action="store_true", help='Use tabular expert, else use gpt3')
 parser.add_argument('--prior', default="mec", choices=["mec", "independent"])
 parser.add_argument('--probability', default="posterior", choices=["posterior", "prior", "likelihood"])
-parser.add_argument('--wandb-project', default='wandb_project', type=str, help='Name of your wandb project')
+
+parser.add_argument('--wandb-project', default='noisy expert', type=str, help='Name of your wandb project')
+parser.add_argument('--llm-engine', default='text-davinci-002')
 parser.add_argument('--calibrate', default=False, action="store_true", help='Calibrate gpt3')
+
 
 parser.add_argument('--epsilon', default=0.05, type=float, help='algorithm error tolerance')
 parser.add_argument('-tol', '--tolerance', default=0.1, type=float, help='algorithm error tolerance')
@@ -108,12 +110,14 @@ if __name__ == '__main__':
             codebook = None
 
         if args.calibrate:
-            tmp_scale, eps = temperature_scaling(cpdag.arcs, codebook)
+            tmp_scale, eps = temperature_scaling(cpdag.arcs, codebook, engine=args.llm_engine)
             print("LLM has %.3f error rate" % eps)
         else:
             tmp_scale = 1.
     
-        likelihoods, observations = get_lms_probs(undirected_edges, codebook, tmp_scale)
+
+        likelihoods, observations = get_lms_probs(undirected_edges, codebook, tmp_scale, engine=args.llm_engine)
+
 
     print("\nTrue Orientations:", undirected_edges)
     print("\nOrientations given by the expert:", observations)

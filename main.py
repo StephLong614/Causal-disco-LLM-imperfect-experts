@@ -15,7 +15,6 @@ from models.noisy_expert import NoisyExpert
 from models.oracles import EpsilonOracle
 
 from utils.data_generation import generate_dataset
-from utils.plotting import plot_heatmap
 from utils.dag_utils import get_undirected_edges, is_dag_in_mec, get_mec
 from utils.metrics import get_mec_shd
 from utils.language_models import get_lms_probs, temperature_scaling

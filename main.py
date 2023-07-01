@@ -22,7 +22,7 @@ from utils.language_models import get_lms_probs, temperature_scaling
 parser = argparse.ArgumentParser(description='Description of your program.')
 
 # Add arguments
-parser.add_argument('--algo', default="greedy_conf", choices=["greedy_mec", "greedy_conf", "greedy_bic", "global_scoring", "PC", "blind"], help='What algorithm to use')
+parser.add_argument('--algo', default="greedy_conf", choices=["greedy_mec", "greedy_conf", "greedy_bic", "global_scoring", "PC", "naive"], help='What algorithm to use')
 parser.add_argument('--dataset', default="child", type=str, help='What dataset to use')
 parser.add_argument('--tabular', default=False, action="store_true", help='Use tabular expert, else use gpt3')
 parser.add_argument('--prior', default="mec", choices=["mec", "independent"])
@@ -62,19 +62,19 @@ if __name__ == '__main__':
             algo = greedy_search_confidence
         case "greedy_bic":
             algo = greedy_search_bic
-            args.tolerance = None
+            args.tolerance = 1.
 
         case "global_scoring":
             from algo.global_scoring import global_scoring
             algo = global_scoring
-            args.tolerance = None
+            args.tolerance = 1.
 
         case "PC":
             algo = lambda a, b, cpdag, c, tol: (get_mec(cpdag), dict(), 1.)
-            args.tolerance = None
-        case "blind":
+            args.tolerance = 0.
+        case "naive":
             algo = blindly_follow_expert
-            args.tolerance = None
+            args.tolerance = 1.
     
     match args.prior:
         case "mec":
@@ -94,7 +94,6 @@ if __name__ == '__main__':
     true_G, _ = generate_dataset('_raw_bayesian_nets/' + args.dataset + '.bif')
     cpdag = DAG.from_nx(true_G).cpdag()
 
-    #plot_heatmap(nx.to_numpy_array(true_G), lbls=true_G.nodes(), dataset=args.dataset, name='true_g.pdf')
     undirected_edges = get_undirected_edges(true_G, verbose=args.verbose)
 
     if args.tabular:
@@ -114,10 +113,8 @@ if __name__ == '__main__':
             print("LLM has %.3f error rate" % eps)
         else:
             tmp_scale = 1.
-    
 
         likelihoods, observations = get_lms_probs(undirected_edges, codebook, tmp_scale, engine=args.llm_engine)
-
 
     print("\nTrue Orientations:", undirected_edges)
     print("\nOrientations given by the expert:", observations)
@@ -148,7 +145,6 @@ if __name__ == '__main__':
     diff = nx.difference(learned_G, true_G)
     print("\nFinal wrong orientations:", diff.edges)
 
-    #shds_scores = np.array([v for v in shds.values()])
     print('\nConfidence true DAG is in final MEC: %.3f' % p_correct)
     print("Final MEC's SHD: ", shd)
     print('MEC size: ', len(new_mec))
@@ -158,5 +154,3 @@ if __name__ == '__main__':
                'prob-correct': p_correct,
                'true-still-in-MEC': is_dag_in_mec(true_G, new_mec)})
     wandb.finish()
-
-    # plot_heatmap(learned_adj, lbls=true_G.nodes(), dataset=args.dataset, name=f'pred-{args.algo}-prior={args.prior}-tol={args.tolerance}-tabular={args.tabular}.pdf')

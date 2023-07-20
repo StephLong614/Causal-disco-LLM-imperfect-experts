@@ -6,7 +6,7 @@ Stephanie Long, Alexandre Piché, Valentina Zantedeschi, Tibor Schuster, Alexand
 [[Paper]](https://arxiv.org/abs/2307.02390)
 
 
-![mec](https://github.com/StephLong614/Causal-disco-LLM-imperfect-experts/assets/17014892/58caad39-6f94-433e-822d-8fe37368f457)
+![results](https://github.com/StephLong614/Causal-disco-LLM-imperfect-experts/files/12112323/greedy_conf_main.pdf)
 
 
 # Citing this work

@@ -11,11 +11,11 @@ do
             do
                 for a in "greedy_mec" "greedy_conf"
                 do
-                    python3 main.py --seed=$s --tol $t --prior $p --algo $a --dataset $d --wandb --epsilon $e --wandb-project $w
+                    python3 main.py --seed=$s --tol $t --prior $p --algo $a --dataset $d --wandb --llm-engine $e --wandb-project $w
                 done
             done
 
-            python3 main.py --seed=$s --prior $p --algo "naive" --dataset $d --wandb --epsilon $e --wandb-project $w
+            python3 main.py --seed=$s --prior $p --algo "naive" --dataset $d --wandb --llm-engine $e --wandb-project $w
 
         done
     done

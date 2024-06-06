@@ -58,7 +58,7 @@ def greedy_search_confidence(observed_arcs, model, cpdag, undirected_edges, tol=
                 decision_scores_[decision_potential] = dec
                     
         if len(decision_scores_) > 0:
-            decision_scores_ = sorted(decision_scores_.items(), key=lambda item: item[1]['probability'], reverse=False)
+            decision_scores_ = sorted(decision_scores_.items(), key=lambda item: item[1]['probability'], reverse=True)
             decision_taken = decision_scores_[0]
         else:
             break

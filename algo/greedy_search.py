@@ -1,3 +1,4 @@
+import copy
 import numpy as np
 
 from utils.dag_utils import get_decisions_from_mec, get_mec
@@ -40,11 +41,12 @@ def greedy_search_confidence(observed_arcs, model, cpdag, undirected_edges, tol=
     decisions = []
     p_correct = 1.
     mec = get_mec(cpdag)
+    possible_decisions = copy.copy(observed_arcs)
 
     while (p_correct > 1 - tol) and (len(mec) > 1):
         decision_scores_ = {}
         
-        for decision_potential in observed_arcs:
+        for decision_potential in possible_decisions:
             
             potential_new_mec = [dag for dag in mec if decision_potential in dag]
             resulting_decisions = get_decisions_from_mec(potential_new_mec, undirected_edges)
@@ -56,14 +58,16 @@ def greedy_search_confidence(observed_arcs, model, cpdag, undirected_edges, tol=
             
             if (p_correct * dec['probability'] > 1 - tol) and (len(potential_new_mec) > 0):
                 decision_scores_[decision_potential] = dec
-                    
+        
         if len(decision_scores_) > 0:
             decision_scores_ = sorted(decision_scores_.items(), key=lambda item: item[1]['probability'], reverse=True)
             decision_taken = decision_scores_[0]
         else:
             break
-    
+        
         decision_taken = decision_scores_[0]
+        possible_decisions.remove(decision_taken[0])
+
         decisions = decision_taken[1]['resulting_decisions']
         mec = [dag for dag in mec if decision_taken[0] in dag]
         p_correct *= decision_taken[1]['probability']

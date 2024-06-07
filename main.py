@@ -33,7 +33,7 @@ parser.add_argument('--llm-engine', default='text-davinci-002')
 parser.add_argument('--calibrate', default=False, action="store_true", help='Calibrate gpt3')
 
 
-parser.add_argument('--epsilon', default=0.05, type=float, help='algorithm error tolerance')
+parser.add_argument('--epsilon', default=0.05, type=float, help='expert error rate')
 parser.add_argument('-tol', '--tolerance', default=0.1, type=float, help='algorithm error tolerance')
 
 parser.add_argument('--seed', type=int, default=20230515, help='random seed')
